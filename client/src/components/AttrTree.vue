@@ -44,8 +44,9 @@ export default {
       // Set the sankey diagram properties
       var sankey = d3Sankey()
         .nodeWidth(36)
-        .nodePadding(290)
+        .nodePadding(0)
         .size([width, height])
+        // .nodeAlign(d3[`sankey${align[0].toUpperCase()}${align.slice(1)}`])
         .nodeId(function id(d) {
           // console.log(d.node, d.name);
           return d.node;
@@ -53,13 +54,19 @@ export default {
 
       var path = sankey.links();
 
-      var graph = sankey(sankeydata);
+      const{nodes,links} = sankey({
+    nodes: sankeydata.nodes.map(d => Object.assign({}, d)),
+    links: sankeydata.links.map(d => Object.assign({}, d))
+  });
+
+  console.log(links)
+  console.log(nodes)
 
       // add in the links
       var link = svg
         .append("g")
         .selectAll(".link")
-        .data(graph.links)
+        .data(links)
         .enter()
         .append("path")
         .attr("class", "link")
@@ -78,7 +85,7 @@ export default {
       var node = svg
         .append("g")
         .selectAll(".node")
-        .data(graph.nodes)
+        .data(nodes)
         .enter()
         .append("g")
         .attr("class", "node");
@@ -93,11 +100,9 @@ export default {
           return d.y0;
         })
         .attr("height", function (d) {
-          return d.value * 10;
+          return d.y1 - d.y0;
         })
-        .attr("width", function(d){
-          return d.x1-d.x0;
-        })
+        .attr("width", sankey.nodeWidth())
         .style("fill", function (d) {
           return (d.color = color(d.name.replace(/ .*/, "")));
         })
@@ -141,7 +146,7 @@ export default {
       .get(path)
       .then((res) => {
         var newData = res.data.node_link;
-        console.log(newData);
+        // console.log(newData);
 
         this.draw(newData);
       })
