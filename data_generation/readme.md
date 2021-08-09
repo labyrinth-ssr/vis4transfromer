@@ -11,8 +11,9 @@ python examples/prune_head_with_attr.py --task_name mnli --data_dir /home/newdis
 
 待优化：
 生成隐层状态的词向量：把max_len缩减到输入tokens的len以加快运算，不然每次都用128会增大很多开销和耗时
+利用encoded_layers生成tsne相关数据的.py文件应与get hidden states代码合并优化，后续还要调整
 如果要实时前后端传输的话需要把模型等相关的提前download到服务器，用URL去网上下载耗时很多
-由于这部分是从attattr开源代码库中节选、并依据我们的系统的要求去修改的代码，因此代码内部可能还存在一些冗余，之后需要处理掉
+由于部分代码是从attattr开源代码库中节选并修改，因此代码内部可能还存在一些冗余，之后需要处理掉
 
 待解决：
 暂时没有解决生成saliency score的代码，可能是因为transformer库版本变化的原因，一直报错
