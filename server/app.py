@@ -23,13 +23,6 @@ BOOKS = [
 ]
 # jsonify : 直接将python中的字符（dump）转入到json，to do:从本地读取json，放到服务器上
 
-
-with open("./data/attn_head.json", 'r') as load_f1:
-    load_dict = json.load(load_f1)
-
-with open("./data/edges_list.json", 'r') as load_f2:
-    py_data = json.load(load_f2)
-
 # data_process.process()
 
 # configuration
@@ -51,6 +44,8 @@ def ping_pong():
 
 @app.route('/data', methods=['GET'])
 def all_data():
+    with open("./data/attn_head.json", 'r') as load_f:
+        load_dict = json.load(load_f)
     return jsonify({
         'data': load_dict
     })
@@ -65,6 +60,10 @@ def all_books():
 
 @app.route('/attr-tree', methods=['GET'])
 def attr_tree_data():
+    with open("./data/edges_list.json", 'r') as load_f:
+        py_data = json.load(load_f)
+    with open("./data/tokens.json", 'r') as load_f2:
+        py_data2 = json.load(load_f2)
     nodes_list = []
     links_list = []
     def run_function(x, y): return x if y in x else x + [y]
@@ -79,10 +78,12 @@ def attr_tree_data():
                      soc_index, 'target': tar_index, 'value': 2}
         links_list.append(link_dict)
 
-        node_dict1 = {'node': tar_index, 'name': tar_text}
-        nodes_list.append(node_dict1)
-        node_dict2 = {'node': soc_index, 'name': soc_text}
-        nodes_list.append(node_dict2)
+        # node_dict1 = {'node': tar_index, 'name': tar_text}
+        # nodes_list.append(node_dict1)
+        # node_dict2 = {'node': soc_index, 'name': soc_text}
+        # nodes_list.append(node_dict2)
+    for inx, val in enumerate(py_data2):
+        nodes_list.append({'node':str(inx),'name':val})
     data = reduce(run_function, [[], ] + nodes_list)
     node_link_data = {'nodes': data, 'links': links_list}
     # node_link_dict = {'node_link'}
@@ -91,30 +92,9 @@ def attr_tree_data():
     #     json.dump(node_link_data,to_json)
 
     return jsonify({
-        'node_link': node_link_data
+        'node_link': node_link_data,
+        'tokens': py_data2
     })
-
-
-@app.route('/test', methods=['GET'])
-def test_data():
-    return jsonify({
-        "nodes": [
-            {"node": '0', "name": "node0"},
-            {"node": '1', "name": "node1"},
-            {"node": '2', "name": "node2"},
-            {"node": '3', "name": "node3"},
-            {"node": '4', "name": "node4"}
-        ],
-        "links": [
-            {"source": '0', "target": '2', "value": 5},
-            {"source": '1', "target": '2', "value": 5},
-            {"source": '1', "target": '3', "value": 5},
-            {"source": '0', "target": '4', "value": 5},
-            {"source": '2', "target": '3', "value": 5},
-            {"source": '2', "target": '4', "value": 5},
-            {"source": '3', "target": '4', "value": 5}
-        ]})
-
 
 if __name__ == '__main__':
     app.run()

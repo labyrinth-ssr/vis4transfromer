@@ -8,6 +8,7 @@ import axios from "axios";
 import {
   sankey as d3Sankey,
   sankeyLinkHorizontal as d3SsankeyLinkHorizontal,
+  sankeyLeft as d3SankeyLeft
 } from "d3-sankey";
 // import * as sankey from 'd3-sankey'
 // import sankeydata
@@ -20,58 +21,85 @@ export default {
     };
   },
   methods: {
-    draw(sankeydata) {
-      var margin = { top: 10, right: 10, bottom: 10, left: 10 },
-        width = 900 - margin.left - margin.right,
-        height = 300 - margin.top - margin.bottom;
+    draw(sankeydata,textData) {
+      var margin = { top: 60, right: 10, bottom: 50, left: 50 },
+        width = 1000 - margin.left - margin.right,
+        height = 600 - margin.top - margin.bottom;
+      const sankeyWidth=height,snakeyHeight=width;
 
       // format variables
       var formatNumber = d3.format(",.0f"), // zero decimal places
         format = function (d) {
           return formatNumber(d);
         },
-        color = d3.scaleOrdinal(d3.schemeCategory10);
+        color = d3.scaleOrdinal(d3.schemePastel1);
+      
+      const textData_index=Object.keys(textData)
+
+        const x = d3.scaleBand().domain(textData_index).range([0,width]).padding(0);
 
       // append the svg object to the body of the page
       var svg = d3
-        .select("body")
+        .select("#my_dataviz")
         .append("svg")
         .attr("width", width + margin.left + margin.right)
         .attr("height", height + margin.top + margin.bottom)
         .append("g")
-        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+        .attr('id','g-sankey-scale')
+        .attr("transform", " translate(" + (margin.left) + "," +( margin.top +height)+ ") rotate(-90)")
+
+      d3.select("svg")
+      .append('g')
+        .attr("transform", " translate(" + (margin.left) + "," +( margin.top +height)+ ')')
+      .style('font-size',7)
+      .call(d3.axisBottom(x).tickPadding(0))
+      .selectAll('.tick')
+      .data(textData)
+      .select('text')
+      .text(function(d,i){
+        return d;
+      })
 
       // Set the sankey diagram properties
       var sankey = d3Sankey()
         .nodeWidth(36)
-        .nodePadding(0)
-        .size([width, height])
+        .nodePadding(15)//最好换成一个函数
+        .size([sankeyWidth,snakeyHeight])
         // .nodeAlign(d3[`sankey${align[0].toUpperCase()}${align.slice(1)}`])
         .nodeId(function id(d) {
           // console.log(d.node, d.name);
           return d.node;
-        });
+        })
+        .nodeSort(function(a,b){
+          return a.node-b.node
+        })
+        .nodeAlign(d3SankeyLeft)
 
       var path = sankey.links();
 
-      const{nodes,links} = sankey({
-    nodes: sankeydata.nodes.map(d => Object.assign({}, d)),
-    links: sankeydata.links.map(d => Object.assign({}, d))
-  });
+      var graph = sankey(sankeydata);
 
-  console.log(links)
-  console.log(nodes)
+      graph.nodes.forEach(node => {
+          var newY=x(node.node)
+          var yGAp=node.y1-node.y0
+          node.y0=newY-yGAp/2
+          node.y1=newY+yGAp/2
+          console.log(this)
+        });
+        sankey.update(graph)
 
       // add in the links
       var link = svg
         .append("g")
         .selectAll(".link")
-        .data(links)
+        .data(graph.links)
         .enter()
         .append("path")
         .attr("class", "link")
         .attr("d", d3SsankeyLinkHorizontal())
-        .attr("stroke-width", function (d) {
+        .attr('fill','none')
+        .attr('stroke','#E6E6FA')
+        .style("stroke-width", function (d) {
           console.log(d.width)
           return d.width;
         })
@@ -81,16 +109,16 @@ export default {
         return d.source.name + " → " + d.target.name + "\n" + format(d.value);
       });
 
-      // add in the nodes
+      // add in the graph
       var node = svg
         .append("g")
         .selectAll(".node")
-        .data(nodes)
+        .data(graph.nodes)
         .enter()
         .append("g")
         .attr("class", "node");
 
-      // add the rectangles for the nodes
+      // add the rectangles for the graph
       node
         .append("rect")
         .attr("x", function (d) {
@@ -100,21 +128,20 @@ export default {
           return d.y0;
         })
         .attr("height", function (d) {
-          return d.y1 - d.y0;
+          
+          return d.y1-d.y0;
         })
         .attr("width", sankey.nodeWidth())
         .style("fill", function (d) {
           return (d.color = color(d.name.replace(/ .*/, "")));
         })
-        .style("stroke", function (d) {
-          return d3.rgb(d.color).darker(2);
-        })
+        .style("stroke",'none')
         .append("title")
         .text(function (d) {
           return d.name + "\n" + format(d.value);
         });
 
-      // add in the title for the nodes
+      // add in the title for the graph
       node
         .append("text")
         .attr("x", function (d) {
@@ -123,7 +150,7 @@ export default {
         .attr("y", function (d) {
           return (d.y1 + d.y0) / 2;
         })
-        .attr("dy", "0.35em")
+        .attr("dy", "0.15em")
         .attr("text-anchor", "end")
         .text(function (d) {
           return d.name;
@@ -134,7 +161,14 @@ export default {
         .attr("x", function (d) {
           return d.x1 + 6;
         })
-        .attr("text-anchor", "start");
+        .attr("text-anchor", "start")
+
+
+        // d3.selectAll('.node')
+        //   .attr('transform',function(d){
+            
+        //     return 'translate('+d.x0
+        //   })
 
       // });
     },
@@ -145,10 +179,10 @@ export default {
     axios
       .get(path)
       .then((res) => {
-        var newData = res.data.node_link;
-        // console.log(newData);
-
-        this.draw(newData);
+        var nodeLinkData = res.data.node_link;
+        var textData=res.data.tokens
+        // console.log(nodeLinkData);
+        this.draw(nodeLinkData,textData);
       })
       .catch((error) => {
         // eslint-disable-next-line
