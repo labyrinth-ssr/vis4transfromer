@@ -22,7 +22,7 @@ export default {
   },
   methods: {
     draw(sankeydata,textData) {
-      var margin = { top: 60, right: 10, bottom: 50, left: 50 },
+      var margin = { top: 60, right: 50, bottom: 50, left: 10 },
         width = 1000 - margin.left - margin.right,
         height = 600 - margin.top - margin.bottom;
       const sankeyWidth=height,snakeyHeight=width;
@@ -67,7 +67,6 @@ export default {
         .size([sankeyWidth,snakeyHeight])
         // .nodeAlign(d3[`sankey${align[0].toUpperCase()}${align.slice(1)}`])
         .nodeId(function id(d) {
-          // console.log(d.node, d.name);
           return d.node;
         })
         .nodeSort(function(a,b){
@@ -81,11 +80,16 @@ export default {
 
       graph.nodes.forEach(node => {
           var newY=x(node.node)
-          var yGAp=node.y1-node.y0
-          node.y0=newY-yGAp/2
-          node.y1=newY+yGAp/2
-          console.log(this)
+          var yGAp=x.bandwidth()
+          node.y0=newY
+          node.y1=newY+yGAp
         });
+
+        graph.links.forEach(link => {
+          link.width=x.bandwidth()
+        });
+
+        console.log(graph)
         sankey.update(graph)
 
       // add in the links
@@ -100,7 +104,6 @@ export default {
         .attr('fill','none')
         .attr('stroke','#E6E6FA')
         .style("stroke-width", function (d) {
-          console.log(d.width)
           return d.width;
         })
 
@@ -128,11 +131,14 @@ export default {
           return d.y0;
         })
         .attr("height", function (d) {
-          
-          return d.y1-d.y0;
+          return Math.max(1,d.targetLinks.length)*x.bandwidth() ;
         })
         .attr("width", sankey.nodeWidth())
         .style("fill", function (d) {
+
+          if((d.targetLinks.length+d.sourceLinks.length)=== 0){
+            return 'none';
+          }
           return (d.color = color(d.name.replace(/ .*/, "")));
         })
         .style("stroke",'none')
@@ -181,7 +187,6 @@ export default {
       .then((res) => {
         var nodeLinkData = res.data.node_link;
         var textData=res.data.tokens
-        // console.log(nodeLinkData);
         this.draw(nodeLinkData,textData);
       })
       .catch((error) => {
