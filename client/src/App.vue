@@ -1,12 +1,47 @@
 <template>
   <div id="app">
-    <div id="nav">
-      <router-link to="/">Home</router-link> |
-      <router-link to="/about">About</router-link>
-    </div>
-    <router-view/>
+    <a-row :gutter="[2, 2]">
+      <a-col :span='12'>
+        blankness
+      </a-col>
+      <a-col :span='12'>
+        <div id='attrTree_container'>
+          <AttrTree></AttrTree>
+        </div>
+      </a-col>
+    </a-row >
+      <a-row :gutter="[2, 2]">
+      <a-col :span='12'>
+        blankness
+      </a-col>
+      <a-col :span='12'>
+        <div id='att_container'>
+          <AttnMap></AttnMap>
+        </div>
+      </a-col>
+    </a-row>
   </div>
 </template>
+
+<script>
+import AttrTree from './components/AttrTree.vue'
+import AttnHead from './components/ping.vue'
+import AttnMap from './components/new_attn_map.vue'
+
+
+
+// import attrtree from './components/AttrTree.vue';
+
+export default{
+  name: 'App',
+  components: {
+    AttrTree,
+    AttnHead,
+    AttnMap
+  },
+}
+</script>
+
 
 <style>
 #app {
@@ -17,16 +52,5 @@
   color: #2c3e50;
 }
 
-#nav {
-  padding: 30px;
-}
 
-#nav a {
-  font-weight: bold;
-  color: #2c3e50;
-}
-
-#nav a.router-link-exact-active {
-  color: #42b983;
-}
 </style>

@@ -4,6 +4,8 @@ import Ping from '../components/ping.vue';
 import Books from '../components/Books.vue';
 import HelloWorld from '../components/HelloWorld.vue';
 import AttrTree from '../components/AttrTree.vue'
+import AttnMap from '../components/attn-map.vue'
+
 
 Vue.use(VueRouter)
 
@@ -46,6 +48,11 @@ const router = new VueRouter({
       path: '/attrTree',
       name: 'attrTree',
       component: AttrTree,
+    },
+    {
+      path: '/attnMap',
+      name: 'attnMree',
+      component: AttnMap,
     }
   ],
 })

@@ -6,7 +6,7 @@
 
 -->
 
-<div id="attn-graph"></div>
+<div id="attn-map"></div>
 </template>
 
 <script>
@@ -15,7 +15,7 @@ import axios from "axios";
 // import visData from '../../../data/attn_head.json'
 
 export default {
-  name: "attn_graph",
+  name: "attn_map",
   data() {
     return {
       data: []
@@ -35,21 +35,21 @@ export default {
     //     });
     // },
     draw(myData) {
-      // set the dimensions and margins of the graph
+      // set the dimensions and margins of the map
       const margin = { top: 80, right: 25, bottom: 30, left: 40 },
         width = 450 - margin.left - margin.right,
         height = 450 - margin.top - margin.bottom;
 
       // append the svg object to the body of the page
       const svg = d3
-        .select("#attn-graph")
+        .select("#attn-map")
         .append("svg")
         .attr("width", width + margin.left + margin.right)
         .attr("height", height + margin.top + margin.bottom)
         .append("g")
         .attr("transform", `translate(${margin.left}, ${margin.top})`);
 
-      //static data
+      //static data//left:x,right:y(it must be self-attened,so that's ok)
       const xText = [
         "[CLS]",
         "I",
@@ -80,6 +80,8 @@ export default {
         "lose",
         "[SEP]",
       ];
+      var arrX=Object.entries(xText),
+      arrY=Object.entries(yText);
       var arrx = [];
       for (var i = 0; i < xText.length; i++) {
         arrx.push(i);
@@ -88,16 +90,18 @@ export default {
       for (var i = 0; i < xText.length; i++) {
         arry.push(i);
       }
+      const color = "steelblue";
+      const background_color = "pink";
+      const textPadding=10;
 
       // Build X scales and axis:
-      const x = d3.scaleBand().range([height, 0]).domain(arrx).padding(0.05);
+      const x = d3.scaleBand().range([0,height]).domain(arrx).padding(0.05);
 
       svg
         .append("g")
         .style("font-size", 10)
-        .attr("transform", `translate(0, ${height})`)
-        .attr("class", "xAxis")
-        .call(d3.axisBottom(x).tickSize(0))
+        .attr("class", "leftAxis")
+        .call(d3.axisLeft(x).tickSize(0))
         .selectAll(".tick")
         .data(xText)
         .select("text")
@@ -106,11 +110,13 @@ export default {
         });
 
       // Build Y scales and axis:
-      const y = d3.scaleBand().range([height, 0]).domain(arry).padding(0.05);
+    //   const y = d3.scaleBand().range([height, 0]).domain(arry).padding(0.05);
       svg
         .append("g")
         .style("font-size", 10)
-        .call(d3.axisLeft(y).tickSize(0))
+        .attr('transform','translate('+(width-margin.right)+',0)')
+        .attr('class','rightAxis')
+        .call(d3.axisRight(x).tickSize(0))
         .selectAll(".tick")
         .data(yText)
         .select("text")
@@ -119,32 +125,45 @@ export default {
         });
       d3.selectAll(".domain").remove();
 
-      // Build color scale
-      const myColor = d3
-        .scaleSequential()
-        .interpolator(d3.interpolateGnBu)
-        .domain([0, 1]);
-
-      svg
-        .selectAll()
+        svg.selectAll()
         .data(myData)
-        .join('rect')
-        .attr("x", function (d) {
-          return x(+d['source']);
+        .enter()
+        .append('line')
+        .attr('x1',textPadding)
+        .attr('y1',function(d){
+            return (x(+d.source)+(x.bandwidth())/2)
         })
-        .attr("y", function (d) {
-          return y(+d['target']);
+        .attr('x2',width-margin.right)
+        .attr('y2',function(d){
+            return x(+d.target)+x.bandwidth()/2
         })
-        .attr("rx", 4)
-        .attr("ry", 4)
-        .attr("width", x.bandwidth())
-        .attr("height", y.bandwidth())
-        .style("fill", function (d) {
-          return myColor(+ d['value']);
+        .attr('stroke-width',2.2)
+        .attr('stroke',color)
+        .attr('stroke-opacity',function(d){
+            return +d.value
         })
-        .style("stroke-width", 4)
-        .style("stroke", "none")
-        .style("opacity", 0.8);
+
+
+    //   svg
+    //     .selectAll()
+    //     .data(myData)
+    //     .join('rect')
+    //     .attr("x", function (d) {
+    //       return x(+d['source']);
+    //     })
+    //     .attr("y", function (d) {
+    //       return y(+d['target']);
+    //     })
+    //     .attr("rx", 4)
+    //     .attr("ry", 4)
+    //     .attr("width", x.bandwidth())
+    //     .attr("height", y.bandwidth())
+    //     .style("fill", function (d) {
+    //       return myColor(+ d['value']);
+    //     })
+    //     .style("stroke-width", 4)
+    //     .style("stroke", "none")
+    //     .style("opacity", 0.8);
     },
   },
   
