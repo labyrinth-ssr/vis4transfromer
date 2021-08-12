@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import Ping from '../components/ping.vue';
+import Ping from '../components/headView.vue';
 import Books from '../components/Books.vue';
 import HelloWorld from '../components/HelloWorld.vue';
 import AttrTree from '../components/AttrTree.vue'

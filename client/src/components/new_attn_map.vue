@@ -36,9 +36,9 @@ export default {
     // },
     draw(myData) {
       // set the dimensions and margins of the map
-      const margin = { top: 80, right: 25, bottom: 30, left: 40 },
-        width = 450 - margin.left - margin.right,
-        height = 450 - margin.top - margin.bottom;
+      const margin = { top: 20, right: 25, bottom: 30, left: 40 },
+        width = 300 - margin.left - margin.right,
+        height = 300 - margin.top - margin.bottom;
 
       // append the svg object to the body of the page
       const svg = d3

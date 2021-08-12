@@ -1,4 +1,6 @@
-import data_process
+from flask.json import load
+from attn_process import attnProcess
+from head_importance import process_impo
 from functools import reduce
 import re
 import json
@@ -24,9 +26,28 @@ CORS(app, resources={r'/*': {'origins': '*'}})
 def all_data():
     with open("./data/attn_head.json", 'r') as load_f:
         load_dict = json.load(load_f)
-    return jsonify({
+    return jsonify({# 需要一个python对象
         'data': load_dict
     })
+
+@app.route('/attn-head',methods=['GET'])
+
+def attn_data_process():
+    with open('./data_generation/output/att_score_zero_base_exp5.json','r') as load_f1:
+        py_data1=json.load(load_f1)
+    with open('./data_generation/output/head_importance_attr.json','r') as load_f2:
+        py_data2=json.load(load_f2)
+    with open('./data/tokens.json','r') as load_f3:
+        py_data3=json.load(load_f3)
+    print(process_impo(py_data2))
+    
+    return jsonify({
+        'importance':process_impo(py_data2),
+        'detail': attnProcess(py_data1),
+        'tokens': py_data3
+    })
+
+
 
 @app.route('/attr-tree', methods=['GET'])
 def attr_tree_data():

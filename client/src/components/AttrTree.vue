@@ -14,7 +14,7 @@ import {
 // import sankeydata
 
 export default {
-  name: "attr-tree",
+  name: "AttrTree",
   data() {
     return {
       data: [],

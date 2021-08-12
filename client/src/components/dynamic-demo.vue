@@ -13,7 +13,7 @@
 </template>
 
 <script>
-import AttnHead from './ping.vue'
+import AttnHead from './headView.vue'
 import AttnMap from './new_attn_map.vue'
 
 const app = Vue.createApp({
