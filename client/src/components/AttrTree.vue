@@ -38,7 +38,7 @@ export default {
         format = function (d) {
           return formatNumber(d);
         },
-        color = d3.scaleOrdinal(d3.schemePastel1);
+        color = d3.scaleOrdinal(d3.schemePaired);
       
       const textData_index=Object.keys(textData)
 
@@ -95,7 +95,6 @@ export default {
           link.width=x.bandwidth()
         });
 
-        console.log(graph)
         sankey.update(graph)
 
       // add in the links
@@ -108,9 +107,16 @@ export default {
         .attr("class", "link")
         .attr("d", d3SsankeyLinkHorizontal())
         .attr('fill','none')
-        .attr('stroke','#E6E6FA')
+        .attr('stroke','grey')
+        .style('opacity',0.3)
         .style("stroke-width", function (d) {
           return d.width;
+        })
+        .on('mouseover',function(d){
+          d3.select(this).style('opacity',0.6)
+        })
+        .on('mouseleave',function(d){
+          d3.select(this).style('opacity',0.3)
         })
 
       // add the link titles
@@ -127,9 +133,19 @@ export default {
         .append("g")
         .attr("class", "node");
 
+      node.append('g')
+      // .data(d3.select(this.parentNode).datum())
+      .attr('class','textG')
+      .attr('transform',function(d){
+        return 'translate('+d.x0+','+d.y0+') rotate(45)'
+      })
+
+      
+
       // add the rectangles for the graph
       node
         .append("rect")
+        .attr('class','nodeRect')
         .attr("x", function (d) {
           return d.x0;
         })
@@ -148,41 +164,64 @@ export default {
           return (d.color = color(d.name.replace(/ .*/, "")));
         })
         .style("stroke",'none')
+        .style("opacity",0.5)
         .append("title")
         .text(function (d) {
           return d.name + "\n" + format(d.value);
         });
 
+d3.selectAll('.textG')
+      .append('text')
+      .attr('font-size',10)
+      .text(function(d){
+        return d.name
+      })
+
+        // d3.selectAll('.node')
+        // .append('g')
+        // .attr('transform','translate('+)
+        // .append('rect')
+        // .attr('width',50)
+        // .attr('height',50)
+        // .attr('fill','blue')
+        // .append("text")
+        // .attr('class','nodeText')
+        // .attr('font-size',10)
+        // .attr('text-anchor','end')
+        // .text(function (d) {
+        //   return d.name;
+        // })
+
       // add in the title for the graph
-      node
-        .append("text")
-        .attr('class','nodeText')
+      // node
+      //   .append("text")
+      //   .attr('class','nodeText')
 
-        .attr("x", function (d) {
-          return d.x0;
-        })
-        .attr("y", function (d) {
-          return (d.y1 + d.y0) / 2;
-        })
-        // .attr("dy", "0.15em")
-        .attr('font-size',10)
+      //   .attr("x", function (d) {
+      //     return d.x0;
+      //   })
+      //   .attr("y", function (d) {
+      //     return (d.y1 + d.y0) / 2;
+      //   })
+      //   // .attr("dy", "0.15em")
+      //   .attr('font-size',10)
 
-        .attr('text-anchor','end')
-        // .attr('transform','rotate(45)')
+      //   .attr('text-anchor','end')
+      //   // .attr('transform','rotate(45)')
 
 
 
-        .text(function (d) {
-          return d.name;
-        })
+      //   .text(function (d) {
+      //     return d.name;
+      //   })
 
-        .filter(function (d) {
-          return d.x0 < width / 2;
-        })
-        .attr("x", function (d) {
-          return d.x1 + 6;
-        })
-        .attr("text-anchor", "start")
+      //   .filter(function (d) {
+      //     return d.x0 < width / 2;
+      //   })
+      //   .attr("x", function (d) {
+      //     return d.x1 + 6;
+      //   })
+      //   .attr("text-anchor", "start")
 
 
         // d3.selectAll('.node')

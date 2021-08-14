@@ -20,11 +20,12 @@ export default {
   methods: {
     draw(myData,tokens,detail_attn) {
       // set the dimensions and margins of the graph
-      const margin = { top: 20, right: 20, bottom: 20, left: 20 },
+      const margin = { top: 20, right: 30, bottom: 20, left: 20 },
         width = 840 - margin.left - margin.right,
         height = 600 - margin.top - margin.bottom;
 
       const detailHeight = 200,detailWidth=200
+      const background_color='steelblue'
 
       const lineColor='LightCoral'
 
@@ -106,16 +107,62 @@ export default {
 
       if(d3.select('#leftAxis')._groups[0][0]===null){
 
+        const tickData=Object.entries(tokens)
       
       d3.select('#detail').style("font-size", 10).append('g')
         .attr("id", "leftAxis")
         .call(d3.axisLeft(detailScale).tickSize(0))
         .selectAll(".tick")
-        .data(tokens)
+        .attr('class','leftTick')
+        .data(tickData)
         .select("text")
         .text(function (d, i) {
-          return d;
-        });
+          return d[1];
+        })
+
+        // d3.selectAll('.leftTick')
+        // .append('rect')
+        // .data(function(d){
+        //   console.log(d)
+        //   return d;
+        // })
+        // .attr('class','tokenContainer')
+        // .attr('fill','blue')
+        // .attr('y',-detailScale.bandwidth()/2)
+        // .style('opacity',0.5)
+        // .attr('x',-margin.right)
+        // .attr('width',margin.right)
+        // .attr('height',detailScale.bandwidth())
+        // .on('mouseover',function(d,data){
+        //   ;
+        // })
+        // .on('mouseleave',function(d,data){
+
+        // })
+
+        d3.select('#leftAxis')
+        .selectAll('.tokenContainer')
+        .data(tickData)
+        .join('rect')
+        .attr('class','tokenContainer')
+        .attr('x',-margin.right)
+        .attr('y',function(d){
+          return detailScale(d[0])
+        })
+        .attr('width',margin.right)
+        .attr('height',detailScale.bandwidth())
+        .attr('fill','blue')
+        .style('opacity',0.0)
+        .on('mouseover',function(d,data){
+          highlightSelection(data[0])
+        })
+        .on('mouseleave',function(d,data){
+          unhighlightSelection()
+        })
+
+
+
+        
 
       d3.select('#detail').append("g")
         .style("font-size", 10)
@@ -123,6 +170,7 @@ export default {
         .attr('id','rightAxis')
         .call(d3.axisRight(detailScale).tickSize(0))
         .selectAll(".tick")
+        .attr('class','rightTick')
         .data(tokens)
         .select("text")
         .text(function (d, i) {
@@ -150,11 +198,7 @@ export default {
             return +d.val
         })
 
-
-
       }
-
-
 
       svg
         .selectAll()
@@ -179,6 +223,27 @@ export default {
         .on('mouseover',mouseover)
         .on('mouseleave',mouseleave)
         .on('click',click)
+
+         function highlightSelection(index) {
+        d3
+          .selectAll(".tokenContainer")
+          .attr("fill", background_color)
+          .style("opacity", function (d) {
+            return d[0] == index ? 0.3: 0.0;
+          });
+        d3
+          .selectAll(".attn")
+          .style("opacity", function (d) {
+            return d.source == (+index) ? 1.0 : 0.0;
+          });
+      }
+
+      function unhighlightSelection() {
+        d3
+          .selectAll(".tokenContainer")
+          .style("opacity", 0.0);
+        d3.selectAll(".attn").style("opacity", 1);
+      }
 
     },
   },
