@@ -22,18 +22,6 @@ export default {
     };
   },
   methods: {
-    // getMessage() {
-    //   const path = 'http://localhost:5000/data';
-    //   axios.get(path)
-    //     .then((res) => {
-    //       this.data = res.data.data;
-    //       console.log(this.data)
-    //     })
-    //     .catch((error) => {
-    //       // eslint-disable-next-line
-    //       console.error(error);
-    //     });
-    // },
     draw(myData) {
       // set the dimensions and margins of the map
       const margin = { top: 20, right: 25, bottom: 30, left: 40 },
@@ -142,31 +130,9 @@ export default {
         .attr('stroke-opacity',function(d){
             return +d.value
         })
-
-
-    //   svg
-    //     .selectAll()
-    //     .data(myData)
-    //     .join('rect')
-    //     .attr("x", function (d) {
-    //       return x(+d['source']);
-    //     })
-    //     .attr("y", function (d) {
-    //       return y(+d['target']);
-    //     })
-    //     .attr("rx", 4)
-    //     .attr("ry", 4)
-    //     .attr("width", x.bandwidth())
-    //     .attr("height", y.bandwidth())
-    //     .style("fill", function (d) {
-    //       return myColor(+ d['value']);
-    //     })
-    //     .style("stroke-width", 4)
-    //     .style("stroke", "none")
-    //     .style("opacity", 0.8);
     },
   },
-  
+  props:['draw_req'],
   mounted() {
     const path = 'http://localhost:5000/data';
       axios.get(path)

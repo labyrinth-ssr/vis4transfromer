@@ -1,9 +1,11 @@
 <template>
 
-<div id="attn-graph"></div>
+<div id="attn-graph">
+</div>
 </template>
 
 <script>
+import AttnMap from './new_attn_map.vue'
 import * as d3 from "d3";
 import axios from "axios";
 // import visData from '../../../data/attn_head.json'
@@ -16,28 +18,21 @@ export default {
     };
   },
   methods: {
-    // getMessage() {
-    //   const path = 'http://localhost:5000/data';
-    //   axios.get(path)
-    //     .then((res) => {
-    //       this.data = res.data.data;
-    //       console.log(this.data)
-    //     })
-    //     .catch((error) => {
-    //       // eslint-disable-next-line
-    //       console.error(error);
-    //     });
-    // },
-    draw(myData,tokens) {
+    draw(myData,tokens,detail_attn) {
       // set the dimensions and margins of the graph
       const margin = { top: 20, right: 20, bottom: 20, left: 20 },
-        width = 600 - margin.left - margin.right,
+        width = 840 - margin.left - margin.right,
         height = 600 - margin.top - margin.bottom;
+
+      const detailHeight = 200,detailWidth=200
+
+      const lineColor='LightCoral'
 
       // append the svg object to the body of the page
       const svg = d3
         .select("#attn-graph")
         .append("svg")
+        .attr('id','attnSvg')
         .attr("width", width + margin.left + margin.right)
         .attr("height", height + margin.top + margin.bottom)
         .append("g")
@@ -75,7 +70,6 @@ export default {
       d3.selectAll(".domain").remove();
 
       var valArr=[]
-
       myData.forEach(ele => {
         valArr.push(ele.val)
       });
@@ -86,39 +80,116 @@ export default {
         .interpolator(d3.interpolateGnBu)
         .domain([0, d3.max(valArr)]);
 
-      // console.log(myData)
-      // console.log(Math.max.apply(Math, myData.map(function(o) {return o.val})))
+      var mouseover=function(d){
+        d3.select(this)
+        .style('stroke','black')
+        .style('opacity',1)
+      }
+
+      var mouseleave = function(d){
+        d3.select(this)
+        .style('stroke','none')
+        .style('opacity',0.8)
+      }
+
+      svg.append('g')
+        .attr('id','detail')
+        .attr('transform','translate('+(height+margin.right) +',0)')
+
+      var click=function(d,data){//todo:
+
+      const req_data=detail_attn.filter(ele=>ele.layer===data.layer&&ele.head===data.head)//迷之..是个数组
+      var line_data=req_data[0].attn
+
+      const detailDomain=Object.keys(tokens)
+      const detailScale= d3.scaleBand().range([0,height-margin.top]).domain(detailDomain).padding(0.05);
+
+      if(d3.select('#leftAxis')._groups[0][0]===null){
+
+      
+      d3.select('#detail').style("font-size", 10).append('g')
+        .attr("id", "leftAxis")
+        .call(d3.axisLeft(detailScale).tickSize(0))
+        .selectAll(".tick")
+        .data(tokens)
+        .select("text")
+        .text(function (d, i) {
+          return d;
+        });
+
+      d3.select('#detail').append("g")
+        .style("font-size", 10)
+        .attr('transform','translate('+(detailWidth-margin.right)+',0)')
+        .attr('id','rightAxis')
+        .call(d3.axisRight(detailScale).tickSize(0))
+        .selectAll(".tick")
+        .data(tokens)
+        .select("text")
+        .text(function (d, i) {
+          return d;
+        });
+      d3.selectAll(".domain").remove();
+
+      }
+      
+      d3.select('#detail').selectAll('.attn')
+        .data(line_data)
+        .join('line')
+        .attr('class','attn')
+        .attr('x1',5)
+        .attr('y1',function(d){
+            return (detailScale(`${d.source}`)+(detailScale.bandwidth())/2)
+        })
+        .attr('x2',detailWidth-margin.right)
+        .attr('y2',function(d){
+            return detailScale(`${d.target}`)+detailScale.bandwidth()/2
+        })
+        .attr('stroke-width',2.2)
+        .attr('stroke',lineColor)
+        .attr('stroke-opacity',function(d){
+            return +d.val
+        })
+
+
+
+      }
+
+
 
       svg
         .selectAll()
         .data(myData)
         .join('rect')
-        .attr("x", function (d) {
-          return x(d.layer);
-        })
-        .attr("y", function (d) {
-          return x(d.head);
-        })
-        .attr("rx", 4)
-        .attr("ry", 4)
-        .attr("width", x.bandwidth())
-        .attr("height", x.bandwidth())
-        .style("fill", function (d) {
-          return myColor(d.val);
-        })
-        .style("stroke-width", 4)
-        .style("stroke", "none")
-        .style("opacity", 0.8);
+          .attr("x", function (d) {
+            return x(d.layer);
+          })
+          .attr("y", function (d) {
+            return x(d.head);
+          })
+          .attr("rx", 4)
+          .attr("ry", 4)
+          .attr("width", x.bandwidth())
+          .attr("height", x.bandwidth())
+          .style("fill", function (d) {
+            return myColor(d.val);
+          })
+          .style("stroke-width", 4)
+          .style("stroke", "none")
+          .style("opacity", 0.8)
+        .on('mouseover',mouseover)
+        .on('mouseleave',mouseleave)
+        .on('click',click)
+
     },
   },
-  
   mounted() {
     const path = 'http://localhost:5000/attn-head';
       axios.get(path)
         .then((res) => {
           const impo_data = res.data.importance;
           const tokens =res.data.tokens
-          this.draw(impo_data,tokens)
+          const attn_data=res.data.detail
+          this.draw(impo_data,tokens,attn_data)
         }
         )
         .catch((error) => {

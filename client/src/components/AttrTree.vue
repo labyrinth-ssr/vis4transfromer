@@ -9,9 +9,10 @@ import {
   sankey as d3Sankey,
   sankeyLinkHorizontal as d3SsankeyLinkHorizontal,
   sankeyLeft as d3SankeyLeft
-} from "d3-sankey";
-// import * as sankey from 'd3-sankey'
-// import sankeydata
+} from "d3-sankey"; 
+// import * as SVG from 'svg.js/dist/svg'
+// import 'svg.select.js/dist/svg.select'
+// import 'svg.resize.js/dist/svg.resize'
 
 export default {
   name: "AttrTree",
@@ -22,6 +23,11 @@ export default {
   },
   methods: {
     draw(sankeydata,textData) {
+
+//       var rect = draw.rect(100,100);
+// rect.SVGselect().SVGresize()
+
+
       var margin = { top: 60, right: 50, bottom: 50, left: 10 },
         width = 700 - margin.left - margin.right,
         height = 500 - margin.top - margin.bottom;
@@ -150,17 +156,26 @@ export default {
       // add in the title for the graph
       node
         .append("text")
+        .attr('class','nodeText')
+
         .attr("x", function (d) {
-          return d.x0 - 6;
+          return d.x0;
         })
         .attr("y", function (d) {
           return (d.y1 + d.y0) / 2;
         })
-        .attr("dy", "0.15em")
-        .attr("text-anchor", "end")
+        // .attr("dy", "0.15em")
+        .attr('font-size',10)
+
+        .attr('text-anchor','end')
+        // .attr('transform','rotate(45)')
+
+
+
         .text(function (d) {
           return d.name;
         })
+
         .filter(function (d) {
           return d.x0 < width / 2;
         })

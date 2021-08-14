@@ -11,15 +11,15 @@
       </a-col>
     </a-row >
       <a-row :gutter="[2, 2]">
-      <a-col :span='12'>
+      <!-- <a-col :span='12'>
         blankness
-      </a-col>
+      </a-col> -->
       <!-- <a-col :span='6'>
         <div id='att_container'>
           <AttnMap></AttnMap>
         </div>
       </a-col> -->
-      <a-col :span='12'>
+      <a-col :span='24'>
         <div id='att_container'>
           <AttnHead></AttnHead>
         </div>
@@ -31,7 +31,7 @@
 <script>
 import AttrTree from './components/AttrTree.vue'
 import AttnHead from './components/headView.vue'
-import AttnMap from './components/new_attn_map.vue'
+// import AttnMap from './components/new_attn_map.vue'
 
 // import attrtree from './components/AttrTree.vue';
 
@@ -40,7 +40,7 @@ export default{
   components: {
     AttrTree,
     AttnHead,
-    AttnMap
+    // AttnMap
   },
 }
 </script>
