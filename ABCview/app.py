@@ -6,7 +6,7 @@ import pandas as pd
 import numpy as np
 import os
 FILENAME1 = './sentence_token_pred_100.json'
-FILENAME2 = './tsne_41.json'
+FILENAME2 = './tsne_100.json'
 
 app = Flask(__name__)
 CORS(app)

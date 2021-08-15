@@ -9,7 +9,7 @@ export default {
     name:"TokenTable",
     created(){
         bus.$on("dispatchsentencetoshow",val =>{
-            this.tokens = val;
+            this.tokens = val[0];
             d3.select('#tokensvg').remove();   //删除整个SVG
             d3.select('#tokensvg')
                 .selectAll('*')
@@ -29,63 +29,23 @@ export default {
             },
             width:1500,
             height:50,
-            tokens: ["[CLS]",
-                    "well",
-                    "that",
-                    "would",
-                    "be",
-                    "a",
-                    "help",
-                    "i",
-                    "wish",
-                    "they",
-                    "would",
-                    "do",
-                    "that",
-                    "here",
-                    "we",
-                    "have",
-                    "got",
-                    "so",
-                    "little",
-                    "land",
-                    "##fill",
-                    "space",
-                    "left",
-                    "that",
-                    "we",
-                    "'",
-                    "re",
-                    "going",
-                    "to",
-                    "run",
-                    "out",
-                    "before",
-                    "the",
-                    "end",
-                    "of",
-                    "this",
-                    "decade",
-                    "and",
-                    "it",
-                    "'",
-                    "s",
-                    "really",
-                    "going",
-                    "to",
-                    "be",
-                    "[SEP]",
-                    "We",
-                    "have",
-                    "plenty",
-                    "of",
-                    "space",
-                    "in",
-                    "the",
-                    "land",
-                    "##fill",
-                    ".",
-                    "[SEP]"]
+            tokens: [
+                "[CLS]",
+                "The",
+                "new",
+                "rights",
+                "are",
+                "nice",
+                "enough",
+                "[SEP]",
+                "Everyone",
+                "really",
+                "likes",
+                "the",
+                "newest",
+                "benefits",
+                "[SEP]"
+            ],
         }
     },
     mounted(){
@@ -189,6 +149,7 @@ export default {
                 // })
                 
 //这边统一用token的位置来做id，方便后续和别的视图link时选择token（否则在第一句和第二句甚至同一句中同样的token多次出现，单独处理会比较麻烦）
+//似乎没有必要...可以直接nodes.each(function(_,i){})来处理，见208行
                 .attr('id', function(){
                     count += 1;
                     return `node-${count}`
@@ -245,8 +206,11 @@ export default {
             nodes.each(function(_,i){
                 d3.select(this)
                 .on("click",function(){
-                    console.log(i)
-                    bus.$emit("dispatchtokentoshow",i)
+                    if(d3.select(this).attr("stroke")=="#ff6131"){
+                        d3.select(this).attr("stroke",undefined)
+                    }
+                    else d3.select(this).attr("stroke","#ff6131")
+                    bus.$emit("dispatchtokentoshow",i)//单击事件：传递需要在tsne视图中显示或删除的token的index
                 })
             })
             // Create legend for the saliency map view

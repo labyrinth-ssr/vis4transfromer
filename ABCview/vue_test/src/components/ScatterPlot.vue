@@ -23,19 +23,28 @@ export default {
         layer_selected.push(i-1);
       }
       this.layer_selected = layer_selected;
-      d3.select('#scattersvg').remove();   //删除整个SVG
-      d3.select('#scattersvg')
-        .selectAll('*')
-        .remove();                    //清空SVG中的内容
-      this.getAll();
+      this.update();
+    }),
+    bus.$on("dispatchsentencetoshow",val =>{
+      this.sentence_selected = val[1];
+      this.token_selected=[];
+      this.update();
+    })
+    bus.$on("dispatchtokentoshow",val =>{
+      if(this.token_selected.indexOf(val)>=0){
+        this.token_selected.splice(this.token_selected.indexOf(val),1)
+      }
+      else this.token_selected.push(val)
+      this.update();
     })
   },
   data(){
     return {
       // api provided by freeCodeCamp
       tsnedata: [], //所有的data
+      sentence_selected:0, //初始时自动选择第一句
       layer_selected: [1,2,3,4,5,6,7,8,9,10,11,12], //被选中的layer，用于过滤
-      token_selected: ["don","exactly"], //被选中的token，用于过滤
+      token_selected: [], //被选中的token的index，用于过滤（注意是index（int)而不是token(str)，以防多个词反复出现时选取错误）
       data_to_show: [],
       widthChart: 600, // width of #scatter-plot svg
       heightChart: 400, // height of #scatter-plot svg
@@ -93,11 +102,18 @@ export default {
   },
   
   methods: {
+    update(){
+      d3.select('#scattersvg').remove();   //删除整个SVG
+      d3.select('#scattersvg')
+        .selectAll('*')
+        .remove();                    //清空SVG中的内容
+      this.getAll();
+    },
     getAll(){
       const path = "http://localhost:5000/query_tsne"
       axios.get(path)
         .then((res)=>{
-          this.tsnedata = res.data
+          this.tsnedata = res.data[this.sentence_selected];
         })
         .then(() => this.datainit())
         .then(() => this.graphinit())
@@ -105,7 +121,7 @@ export default {
     },
     datainit(){
       this.data_to_show = this.tsnedata.filter(datum =>{
-          return (this.token_selected.indexOf(datum.tokens)>=0
+          return (this.token_selected.indexOf(datum.index)>=0
                  &&this.layer_selected.indexOf(datum.layer)>=0)
         }
       )
@@ -255,7 +271,7 @@ export default {
         }
       var data = []
       for(var i=0;i<this.token_selected.length;i++){
-        data = this.data_to_show.filter(datum => {return datum['tokens']==this.token_selected[i]});
+        data = this.data_to_show.filter(datum => {return datum['index']==this.token_selected[i]});
         var currentid = "Path"+i;
         svg.append('path').attr('id', currentid);
         line_generator(data,i,this.color[i]);

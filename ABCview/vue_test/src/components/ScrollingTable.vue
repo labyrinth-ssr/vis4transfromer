@@ -98,7 +98,7 @@ export default {
             })
             .attr("class",d => d.column)
             .on("dblclick",function(){
-                bus.$emit("dispatchsentencetoshow",this.__data__.tokens)
+                bus.$emit("dispatchsentencetoshow",[this.__data__.tokens, this.__data__.index])//传双参数，sentence的tokens和index
             })
         },
     }
