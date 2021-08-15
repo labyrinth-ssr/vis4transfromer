@@ -1,0 +1,266 @@
+<template>
+
+<div id="attn-graph">
+</div>
+</template>
+
+<script>
+import AttnMap from './new_attn_map.vue'
+import * as d3 from "d3";
+import axios from "axios";
+// import visData from '../../../data/attn_head.json'
+
+export default {
+  name: "attn_graph",
+  data() {
+    return {
+      data: []
+    };
+  },
+  methods: {
+    draw(myData,tokens,detail_attn) {
+      // set the dimensions and margins of the graph
+      const margin = { top: 20, right: 30, bottom: 20, left: 20 },
+        width = 840 - margin.left - margin.right,
+        height = 600 - margin.top - margin.bottom;
+
+      const detailHeight = 200,detailWidth=200
+      const background_color='steelblue'
+
+      const lineColor='LightCoral'
+
+      // append the svg object to the body of the page
+      const svg = d3
+        .select("#attn-graph")
+        .append("svg")
+        .attr('id','attnSvg')
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+        .attr("transform", `translate(${margin.left}, ${margin.top})`);
+
+      // Build X scales and axis:
+      const axisContent = Array.from(new Array(12).keys())
+      const x = d3.scaleBand().range([height, 0]).domain(axisContent).padding(0.05);
+
+      svg
+        .append("g")
+        .style("font-size", 10)
+        .attr("transform", `translate(0, ${height})`)
+        .attr("class", "xAxis")
+        .call(d3.axisBottom(x).tickSize(0))
+        .selectAll(".tick")
+        .data(axisContent)
+        .select("text")
+        .text(function (d, i) {
+          return d;
+        });
+
+      // Build Y scales and axis:
+      // const y = d3.scaleBand().range([height, 0]).domain(arry).padding(0.05);
+      svg
+        .append("g")
+        .style("font-size", 10)
+        .call(d3.axisLeft(x).tickSize(0))
+        .selectAll(".tick")
+        .data(axisContent)
+        .select("text")
+        .text(function (d, i) {
+          return d;
+        });
+      d3.selectAll(".domain").remove();
+
+      var valArr=[]
+      myData.forEach(ele => {
+        valArr.push(ele.val)
+      });
+
+      // Build color scale
+      const myColor = d3
+        .scaleSequential()
+        .interpolator(d3.interpolateGnBu)
+        .domain([0, d3.max(valArr)]);
+
+      var mouseover=function(d){
+        d3.select(this)
+        .style('stroke','black')
+        .style('opacity',1)
+      }
+
+      var mouseleave = function(d){
+        d3.select(this)
+        .style('stroke','none')
+        .style('opacity',0.8)
+      }
+
+      svg.append('g')
+        .attr('id','detail')
+        .attr('transform','translate('+(height+margin.right) +',0)')
+
+      var click=function(d,data){//todo:
+
+      const req_data=detail_attn.filter(ele=>ele.layer===data.layer&&ele.head===data.head)//迷之..是个数组
+      var line_data=req_data[0].attn
+
+      const detailDomain=Object.keys(tokens)
+      const detailScale= d3.scaleBand().range([0,height-margin.top]).domain(detailDomain).padding(0.05);
+
+      if(d3.select('#leftAxis')._groups[0][0]===null){
+
+        const tickData=Object.entries(tokens)
+      
+      d3.select('#detail').style("font-size", 10).append('g')
+        .attr("id", "leftAxis")
+        .call(d3.axisLeft(detailScale).tickSize(0))
+        .selectAll(".tick")
+        .attr('class','leftTick')
+        .data(tickData)
+        .select("text")
+        .text(function (d, i) {
+          return d[1];
+        })
+
+        // d3.selectAll('.leftTick')
+        // .append('rect')
+        // .data(function(d){
+        //   console.log(d)
+        //   return d;
+        // })
+        // .attr('class','tokenContainer')
+        // .attr('fill','blue')
+        // .attr('y',-detailScale.bandwidth()/2)
+        // .style('opacity',0.5)
+        // .attr('x',-margin.right)
+        // .attr('width',margin.right)
+        // .attr('height',detailScale.bandwidth())
+        // .on('mouseover',function(d,data){
+        //   ;
+        // })
+        // .on('mouseleave',function(d,data){
+
+        // })
+
+        d3.select('#leftAxis')
+        .selectAll('.tokenContainer')
+        .data(tickData)
+        .join('rect')
+        .attr('class','tokenContainer')
+        .attr('x',-margin.right)
+        .attr('y',function(d){
+          return detailScale(d[0])
+        })
+        .attr('width',margin.right)
+        .attr('height',detailScale.bandwidth())
+        .attr('fill','blue')
+        .style('opacity',0.0)
+        .on('mouseover',function(d,data){
+          highlightSelection(data[0])
+        })
+        .on('mouseleave',function(d,data){
+          unhighlightSelection()
+        })
+
+
+
+        
+
+      d3.select('#detail').append("g")
+        .style("font-size", 10)
+        .attr('transform','translate('+(detailWidth-margin.right)+',0)')
+        .attr('id','rightAxis')
+        .call(d3.axisRight(detailScale).tickSize(0))
+        .selectAll(".tick")
+        .attr('class','rightTick')
+        .data(tokens)
+        .select("text")
+        .text(function (d, i) {
+          return d;
+        });
+      d3.selectAll(".domain").remove();
+
+      }
+      
+      d3.select('#detail').selectAll('.attn')
+        .data(line_data)
+        .join('line')
+        .attr('class','attn')
+        .attr('x1',5)
+        .attr('y1',function(d){
+            return (detailScale(`${d.source}`)+(detailScale.bandwidth())/2)
+        })
+        .attr('x2',detailWidth-margin.right)
+        .attr('y2',function(d){
+            return detailScale(`${d.target}`)+detailScale.bandwidth()/2
+        })
+        .attr('stroke-width',2.2)
+        .attr('stroke',lineColor)
+        .attr('stroke-opacity',function(d){
+            return +d.val
+        })
+
+      }
+
+      svg
+        .selectAll()
+        .data(myData)
+        .join('rect')
+          .attr("x", function (d) {
+            return x(d.layer);
+          })
+          .attr("y", function (d) {
+            return x(d.head);
+          })
+          .attr("rx", 4)
+          .attr("ry", 4)
+          .attr("width", x.bandwidth())
+          .attr("height", x.bandwidth())
+          .style("fill", function (d) {
+            return myColor(d.val);
+          })
+          .style("stroke-width", 4)
+          .style("stroke", "none")
+          .style("opacity", 0.8)
+        .on('mouseover',mouseover)
+        .on('mouseleave',mouseleave)
+        .on('click',click)
+
+         function highlightSelection(index) {
+        d3
+          .selectAll(".tokenContainer")
+          .attr("fill", background_color)
+          .style("opacity", function (d) {
+            return d[0] == index ? 0.3: 0.0;
+          });
+        d3
+          .selectAll(".attn")
+          .style("opacity", function (d) {
+            return d.source == (+index) ? 1.0 : 0.0;
+          });
+      }
+
+      function unhighlightSelection() {
+        d3
+          .selectAll(".tokenContainer")
+          .style("opacity", 0.0);
+        d3.selectAll(".attn").style("opacity", 1);
+      }
+
+    },
+  },
+  mounted() {
+    const path = 'http://localhost:5000/attn-head';
+      axios.get(path)
+        .then((res) => {
+          const impo_data = res.data.importance;
+          const tokens =res.data.tokens
+          const attn_data=res.data.detail
+          this.draw(impo_data,tokens,attn_data)
+        }
+        )
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.error(error);
+        });
+  },
+};
+</script>
