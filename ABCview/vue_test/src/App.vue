@@ -1,29 +1,43 @@
 <template>
-  <div id="sentence">
-    <ScrollingTable/>
-    <TokenTable/>
-    <LayerSelected/>             
-    <ScatterPlot />
+  <div id="app">
+    <a-row :gutter="[2, 2]">
+      <a-col :span="24">
+        <div id="sentence">
+          <ScrollingTable />
+          <TokenTable />
+          <LayerSelected />
+          <AttnHead></AttnHead>
+
+          <ScatterPlot />
+        </div>
+      </a-col>
+    </a-row>
+        
   </div>
 </template>
 
 <script>
-import ScatterPlot from './components/ScatterPlot.vue'
-import LayerSelected from './components/LayerSelected.vue'; 
-import ScrollingTable from './components/ScrollingTable.vue';
-import TokenTable from './components/TokenTable.vue'
+import ScatterPlot from "./components/ScatterPlot.vue";
+import LayerSelected from "./components/LayerSelected.vue";
+import ScrollingTable from "./components/ScrollingTable.vue";
+import TokenTable from "./components/TokenTable.vue";
+import AttnHead from "./components/headView.vue";
 
 export default {
-  name: 'App',
+  name: "App",
   components: {
-      ScrollingTable,ScatterPlot,LayerSelected,TokenTable
-  }
-}
+    ScrollingTable,
+    ScatterPlot,
+    LayerSelected,
+    TokenTable,
+    AttnHead,
+  },
+};
 </script>
 
 <style>
 #sentence {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
+  font-family: "Avenir", Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
