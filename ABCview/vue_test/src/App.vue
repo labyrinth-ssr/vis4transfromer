@@ -1,19 +1,27 @@
 <template>
   <div id="app">
     <a-row :gutter="[2, 2]">
-      <a-col :span="24">
-        <div id="sentence">
-          <ScrollingTable />
+      <a-col :span='12'>
+        <ScrollingTable />
           <TokenTable />
-          <LayerSelected />
-          <AttnHead></AttnHead>
+      </a-col>
+      <a-col :span='12'>
+        <div id='attrTree_container'>
           <AttrTree></AttrTree>
-
+        </div>
+      </a-col>
+    </a-row >
+      <a-row :gutter="[2, 2]">
+      <a-col :span='12'>
+        <LayerSelected />
           <ScatterPlot />
+      </a-col>
+      <a-col :span='12'>
+        <div id='att_container'>
+          <AttnHead></AttnHead>
         </div>
       </a-col>
     </a-row>
-        
   </div>
 </template>
 

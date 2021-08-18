@@ -40,17 +40,17 @@ export default {
   },
   methods: {
 update(){
-      d3.select('#AttrTreeSvg').remove()
-      d3.select('#AttrTreeSvg')
-        .selectAll('*')
-        .remove();
+      
       console.log(this.sentence_selected)//清空SVG中的内容
       this.getAll();
     },
 
 
     draw(sankeydata,textData,nodesData) {//sankeydata:node,link
-
+d3.select('#AttrTreeSvg').remove()
+      d3.select('#AttrTreeSvg')
+        .selectAll('*')
+        .remove();
       var margin = { top: 60, right: 50, bottom: 50, left: 10 },
         width = 700 - margin.left - margin.right,
         height = 500 - margin.top - margin.bottom;

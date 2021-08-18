@@ -32,14 +32,15 @@ export default {
   },
   methods: {
     update(){
-      d3.select('#attnSvg').remove()
-      d3.select('#attnSvg')
-        .selectAll('*')
-        .remove();
+      
       console.log(this.sentence_selected)                    //清空SVG中的内容
       this.getAll();
     },
     draw(myData,tokens,detail_attn) {
+      d3.select('#attnSvg').remove()
+      d3.select('#attnSvg')
+        .selectAll('*')
+        .remove();
       // set the dimensions and margins of the graph
       const margin = { top: 20, right: 30, bottom: 40, left: 20 },
         width = 840 - margin.left - margin.right,
@@ -278,6 +279,8 @@ export default {
         });
     }
   },
+
+  
   mounted() {
     this.getAll()
   },
