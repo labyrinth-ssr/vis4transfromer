@@ -10,23 +10,46 @@ import {
   sankeyLinkHorizontal as d3SsankeyLinkHorizontal,
   sankeyLeft as d3SankeyLeft
 } from "d3-sankey"; 
-// import * as SVG from 'svg.js/dist/svg'
-// import 'svg.select.js/dist/svg.select'
-// import 'svg.resize.js/dist/svg.resize'
+import bus from './bus';
+
 
 export default {
   name: "AttrTree",
+  created(){
+    bus.$on('dispatchsentencetoshow',val=>{
+      this.tokens=val[0]
+      var temp=[]
+      val[0].forEach(function(token,index){
+          temp.push({'node': `${index}`, 'name': token})
+      })
+      this.nodes=temp
+          console.log(this.nodes)
+
+      this.sentence_selected = val[1];
+      console.log(this.sentence_selected)
+      this.update();
+    })
+  },
   data() {
     return {
       data: [],
+      sentence_selected:5, //初始时自动选择第一句
+      tokens:[],
+      nodes:[]
     };
   },
   methods: {
-    draw(sankeydata,textData) {
+update(){
+      d3.select('#AttrTreeSvg').remove()
+      d3.select('#AttrTreeSvg')
+        .selectAll('*')
+        .remove();
+      console.log(this.sentence_selected)//清空SVG中的内容
+      this.getAll();
+    },
 
-//       var rect = draw.rect(100,100);
-// rect.SVGselect().SVGresize()
 
+    draw(sankeydata,textData,nodesData) {//sankeydata:node,link
 
       var margin = { top: 60, right: 50, bottom: 50, left: 10 },
         width = 700 - margin.left - margin.right,
@@ -48,6 +71,7 @@ export default {
       var svg = d3
         .select("#attr-tree")
         .append("svg")
+        .attr('id','AttrTreeSvg')
         .attr("width", width + margin.left + margin.right)
         .attr("height", height + margin.top + margin.bottom)
         .append("g")
@@ -62,7 +86,7 @@ export default {
       .selectAll('.tick')
       .data(textData)
       .select('text')
-      .text(function(d,i){
+      .text(function(d){
         return d;
       })
 
@@ -79,8 +103,8 @@ export default {
           return a.node-b.node
         })
         .nodeAlign(d3SankeyLeft)
+        .nodes(nodesData)
 
-      var path = sankey.links();
 
       var graph = sankey(sankeydata);
 
@@ -112,10 +136,10 @@ export default {
         .style("stroke-width", function (d) {
           return d.width;
         })
-        .on('mouseover',function(d){
+        .on('mouseover',function(){
           d3.select(this).style('opacity',0.6)
         })
-        .on('mouseleave',function(d){
+        .on('mouseleave',function(){
           d3.select(this).style('opacity',0.3)
         })
 
@@ -232,21 +256,31 @@ d3.selectAll('.textG')
 
       // });
     },
+    getAll(){
+      const path='http://127.0.0.1:5000/query_attr_tree/'+this.sentence_selected
+      console.log(path)
+      axios.get(path)
+        .then((res) => {
+          var nodeLinkData = res.data.node_link;
+        var tokens=res.data.tokens
+        if(this.tokens.length!=0){
+            tokens=this.tokens
+          }
+        var nodesData=nodeLinkData.nodes
+        if(this.nodes.length!=0){
+          nodesData=this.nodes
+        }
+        this.draw(nodeLinkData,tokens,nodesData);
+        }
+        )
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.error(error);
+        });
+    }
   },
-
   mounted() {
-    const path = "http://localhost:5000/attr-tree";
-    axios
-      .get(path)
-      .then((res) => {
-        var nodeLinkData = res.data.node_link;
-        var textData=res.data.tokens
-        this.draw(nodeLinkData,textData);
-      })
-      .catch((error) => {
-        // eslint-disable-next-line
-        console.error(error);
-      });
+    this.getAll()
   },
 };
 </script>

@@ -16,18 +16,18 @@ export default {
   name: "attn_graph",
   created(){
     bus.$on('dispatchsentencetoshow',val=>{
+      this.tokens=val[0]
       this.sentence_selected = val[1];
       console.log(this.sentence_selected)
       this.update();
-      
     })
   },
   data() {
     return {
       data: [],
-      sentence_selected:0, //初始时自动选择第一句
+      sentence_selected:5, //初始时自动选择第一句
       token_selected: [], //被选中的token的index，用于过滤（注意是index（int)而不是token(str)，以防多个词反复出现时选取错误）
-
+      tokens:[]
     };
   },
   methods: {
@@ -37,7 +37,7 @@ export default {
         .selectAll('*')
         .remove();
       console.log(this.sentence_selected)                    //清空SVG中的内容
-      this.getAll(this.sentence_selected);
+      this.getAll();
     },
     draw(myData,tokens,detail_attn) {
       // set the dimensions and margins of the graph
@@ -255,16 +255,19 @@ export default {
 
     },
 
-    getAll(index){
-      const path='http://127.0.0.1:5000/query_attn_head/'+index
+    getAll(){
+      const path='http://127.0.0.1:5000/query_attn_head/'+this.sentence_selected
       console.log(path)
       axios.get(path)
         .then((res) => {
           var impo_data = res.data.importance;
           var tokens =res.data.tokens
           var attn_data=res.data.detail
-          console.log(impo_data)
-          console.log(tokens)
+
+          if(this.tokens.length!=0){
+            tokens=this.tokens
+          }
+          
           // console.log()
           this.draw(impo_data,tokens,attn_data)
         }
@@ -276,7 +279,7 @@ export default {
     }
   },
   mounted() {
-    this.getAll(5)
+    this.getAll()
   },
 };
 </script>

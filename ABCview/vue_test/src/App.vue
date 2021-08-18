@@ -7,6 +7,7 @@
           <TokenTable />
           <LayerSelected />
           <AttnHead></AttnHead>
+          <AttrTree></AttrTree>
 
           <ScatterPlot />
         </div>
@@ -22,6 +23,7 @@ import LayerSelected from "./components/LayerSelected.vue";
 import ScrollingTable from "./components/ScrollingTable.vue";
 import TokenTable from "./components/TokenTable.vue";
 import AttnHead from "./components/headView.vue";
+import AttrTree from './components/AttrTree.vue'
 
 export default {
   name: "App",
@@ -31,6 +33,7 @@ export default {
     LayerSelected,
     TokenTable,
     AttnHead,
+    AttrTree
   },
 };
 </script>
