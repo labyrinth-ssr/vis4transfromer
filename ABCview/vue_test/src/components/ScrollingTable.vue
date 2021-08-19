@@ -25,7 +25,7 @@ export default {
     },
     methods:{
         getAll(){
-        const path = "http://localhost:5000/query_all"
+        const path = "http://10.192.9.11:5000/query_all"
         axios.get(path)
             .then((res)=>{
             this.allData = res.data

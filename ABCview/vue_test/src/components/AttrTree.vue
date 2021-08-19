@@ -15,7 +15,7 @@ import bus from './bus';
 
 export default {
   name: "AttrTree",
-  created(){
+  created(){//为什么是在created中监听？
     bus.$on('dispatchsentencetoshow',val=>{
       this.tokens=val[0]
       var temp=[]
@@ -24,10 +24,15 @@ export default {
       })
       this.nodes=temp
           console.log(this.nodes)
-
       this.sentence_selected = val[1];
       console.log(this.sentence_selected)
       this.update();
+    }),
+    bus.$on('dispatchthreshold',val=>{
+      this.threshold=val;
+      console.log('on val:'+val)
+      
+      this.setThreshold(this.threshold)
     })
   },
   data() {
@@ -35,7 +40,8 @@ export default {
       data: [],
       sentence_selected:5, //初始时自动选择第一句
       tokens:[],
-      nodes:[]
+      nodes:[],
+      threshold:0.4
     };
   },
   methods: {
@@ -52,7 +58,7 @@ d3.select('#AttrTreeSvg').remove()
         .selectAll('*')
         .remove();
       var margin = { top: 60, right: 50, bottom: 50, left: 10 },
-        width = 700 - margin.left - margin.right,
+        width = 800 - margin.left - margin.right,
         height = 500 - margin.top - margin.bottom;
       const sankeyWidth=height,snakeyHeight=width;
 
@@ -157,13 +163,6 @@ d3.select('#AttrTreeSvg').remove()
         .append("g")
         .attr("class", "node");
 
-      node.append('g')
-      // .data(d3.select(this.parentNode).datum())
-      .attr('class','textG')
-      .attr('transform',function(d){
-        return 'translate('+d.x0+','+d.y0+') rotate(45)'
-      })
-
       
 
       // add the rectangles for the graph
@@ -194,70 +193,20 @@ d3.select('#AttrTreeSvg').remove()
           return d.name + "\n" + format(d.value);
         });
 
-d3.selectAll('.textG')
-      .append('text')
+        node.append('text')
       .attr('font-size',10)
       .text(function(d){
         return d.name
       })
+      // .data(d3.select(this.parentNode).datum())
+      .attr('class','textG')
+      .attr('transform',function(d){
+        return 'translate('+d.x0+','+d.y0+') rotate(45)'
+      })
 
-        // d3.selectAll('.node')
-        // .append('g')
-        // .attr('transform','translate('+)
-        // .append('rect')
-        // .attr('width',50)
-        // .attr('height',50)
-        // .attr('fill','blue')
-        // .append("text")
-        // .attr('class','nodeText')
-        // .attr('font-size',10)
-        // .attr('text-anchor','end')
-        // .text(function (d) {
-        //   return d.name;
-        // })
-
-      // add in the title for the graph
-      // node
-      //   .append("text")
-      //   .attr('class','nodeText')
-
-      //   .attr("x", function (d) {
-      //     return d.x0;
-      //   })
-      //   .attr("y", function (d) {
-      //     return (d.y1 + d.y0) / 2;
-      //   })
-      //   // .attr("dy", "0.15em")
-      //   .attr('font-size',10)
-
-      //   .attr('text-anchor','end')
-      //   // .attr('transform','rotate(45)')
-
-
-
-      //   .text(function (d) {
-      //     return d.name;
-      //   })
-
-      //   .filter(function (d) {
-      //     return d.x0 < width / 2;
-      //   })
-      //   .attr("x", function (d) {
-      //     return d.x1 + 6;
-      //   })
-      //   .attr("text-anchor", "start")
-
-
-        // d3.selectAll('.node')
-        //   .attr('transform',function(d){
-            
-        //     return 'translate('+d.x0
-        //   })
-
-      // });
     },
     getAll(){
-      const path='http://127.0.0.1:5000/query_attr_tree/'+this.sentence_selected
+      const path='http://10.192.9.11:5000/query_attr_tree/'+this.sentence_selected
       console.log(path)
       axios.get(path)
         .then((res) => {
@@ -277,10 +226,21 @@ d3.selectAll('.textG')
           // eslint-disable-next-line
           console.error(error);
         });
+    },
+    setThreshold(threshold){
+      const path='http://10.192.9.11:5000/query_attr_tree/'+this.sentence_selected
+      axios.post(path,{'sts_id':this.sentence_selected,'threshold':threshold})
+      .then(()=>{
+        console.log('post!')
+        this.getAll()
+        
+      }
+      )
     }
   },
   mounted() {
-    this.getAll()
+    this.setThreshold(0.4)
+    // this.getAll()
   },
 };
 </script>

@@ -23,19 +23,19 @@ export default {
         layer_selected.push(i-1);
       }
       this.layer_selected = layer_selected;
-      this.update();
+      this.getAll();
     }),
     bus.$on("dispatchsentencetoshow",val =>{
       this.sentence_selected = val[1];
       this.token_selected=[];
-      this.update();
+      this.getAll();
     })
     bus.$on("dispatchtokentoshow",val =>{
       if(this.token_selected.indexOf(val)>=0){
         this.token_selected.splice(this.token_selected.indexOf(val),1)
       }
       else this.token_selected.push(val)
-      this.update();
+      this.getAll();
     })
   },
   data(){
@@ -106,15 +106,15 @@ export default {
       d3.select('#scattersvg').remove();   //删除整个SVG
       d3.select('#scattersvg')
         .selectAll('*')
-        .remove();                    //清空SVG中的内容
-      this.getAll();
+        .remove()
     },
     getAll(){
-      const path = "http://localhost:5000/query_tsne"
+      const path = "http://10.192.9.11:5000/query_tsne"
       axios.get(path)
         .then((res)=>{
           this.tsnedata = res.data[this.sentence_selected];
         })
+        .then(() => this.update())
         .then(() => this.datainit())
         .then(() => this.graphinit())
         .catch((error) => console.log(error));
@@ -138,8 +138,8 @@ export default {
       const xScale = d3.scaleLinear()
         // minus and plus one year to give padding for the data
         .domain([
-          d3.min(this.data_to_show, (d) => d['tsne'][0]-50),
-          d3.max(this.data_to_show, (d) => d['tsne'][0]+50)
+          d3.min(this.data_to_show, (d) => d['tsne'][0]-5),
+          d3.max(this.data_to_show, (d) => d['tsne'][0]+5)
         ])
         .range([
           this.padding,
@@ -149,8 +149,8 @@ export default {
       // setup y-axis
       const yScale = d3.scaleTime()
         .domain([
-          d3.min(this.data_to_show, (d) => d['tsne'][1]-50),
-          d3.max(this.data_to_show, (d) => d['tsne'][1]+50)
+          d3.min(this.data_to_show, (d) => d['tsne'][1]-5),
+          d3.max(this.data_to_show, (d) => d['tsne'][1]+5)
         ])
         .range([
           this.heightChart - this.padding,
@@ -251,19 +251,24 @@ export default {
           
           var currentid = "Path"+i;
 
-          var path = d3.select("#"+currentid).datum(data)
+          d3.select("#"+currentid).datum(data)
           .attr('class', 'datacurve')
           .attr("fill", "none")
           .attr("stroke", color)
           .attr("stroke-width", 2.5)
           .attr("d", line);
 
-          var totalLength = path.node().getTotalLength();
           
           d3.select("#startLine").on("click", function(){
           d3.selectAll('.datacurve')
-          .attr("stroke-dasharray", totalLength + " " + totalLength)
-          .attr("stroke-dashoffset", totalLength)
+          .attr("stroke-dasharray", function() {
+            var totalLength = this.getTotalLength();
+            return totalLength + " " + totalLength;
+          })
+          .attr("stroke-dashoffset", function() {
+            var totalLength = this.getTotalLength();
+            return totalLength;
+          })
           .transition()
           .duration(3000)
           .attr("stroke-dashoffset", 0);

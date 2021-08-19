@@ -7,6 +7,7 @@
       </a-col>
       <a-col :span='12'>
         <div id='attrTree_container'>
+          <ThresholdSelected />
           <AttrTree></AttrTree>
         </div>
       </a-col>
@@ -18,7 +19,7 @@
       </a-col>
       <a-col :span='12'>
         <div id='att_container'>
-          <AttnHead></AttnHead>
+          <!-- <AttnHead></AttnHead> -->
         </div>
       </a-col>
     </a-row>
@@ -30,8 +31,9 @@ import ScatterPlot from "./components/ScatterPlot.vue";
 import LayerSelected from "./components/LayerSelected.vue";
 import ScrollingTable from "./components/ScrollingTable.vue";
 import TokenTable from "./components/TokenTable.vue";
-import AttnHead from "./components/headView.vue";
+// import AttnHead from "./components/headView.vue";
 import AttrTree from './components/AttrTree.vue'
+import ThresholdSelected from './components/ThresholdSelected.vue'
 
 export default {
   name: "App",
@@ -40,8 +42,9 @@ export default {
     ScatterPlot,
     LayerSelected,
     TokenTable,
-    AttnHead,
-    AttrTree
+    // AttnHead,
+    AttrTree,
+    ThresholdSelected
   },
 };
 </script>

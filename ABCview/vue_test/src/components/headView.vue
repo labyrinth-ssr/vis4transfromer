@@ -42,7 +42,7 @@ export default {
         .selectAll('*')
         .remove();
       // set the dimensions and margins of the graph
-      const margin = { top: 20, right: 30, bottom: 40, left: 20 },
+      const margin = { top: 20, right: 30, bottom: 40, left: 50 },
         width = 840 - margin.left - margin.right,
         height = 600 - margin.top - margin.bottom;
 
@@ -80,18 +80,21 @@ export default {
 
         d3.select('.xAxis')
         .append('text')
-        .attr('x',width/2)
+        .attr('x',height/2)
         .attr('y',30)
-        .attr('fill','white')
+        .attr('fill','black')
         .text('head')
         .attr('text-anchor','middle')
-        .style("font-size", 10)
+        .style("font-size", 15)
+
+        
 
 
       // Build Y scales and axis:
       // const y = d3.scaleBand().range([height, 0]).domain(arry).padding(0.05);
       svg
         .append("g")
+        .attr('class','yAxis')
         .style("font-size", 10)
         .call(d3.axisLeft(x).tickSize(0))
         .selectAll(".tick")
@@ -100,6 +103,15 @@ export default {
         .text(function (d) {
           return d;
         });
+
+        d3.select('.yAxis')
+        .append('text')
+        .attr('x',-30)
+        .attr('y',height/2)
+        .attr('fill','black')
+        .text('layer')
+        .attr('text-anchor','middle')
+        .style("font-size", 15)
       d3.selectAll(".domain").remove();
 
       var valArr=[]
@@ -127,7 +139,7 @@ export default {
 
       svg.append('g')
         .attr('id','detail')
-        .attr('transform','translate('+(height+margin.right) +',0)')
+        .attr('transform','translate('+(height+margin.right) +',-15)')
 
       var click=function(d,data){//todo:
 
@@ -135,7 +147,7 @@ export default {
       var line_data=req_data[0].attn
 
       const detailDomain=Object.keys(tokens)
-      const detailScale= d3.scaleBand().range([0,height-margin.top]).domain(detailDomain).padding(0);
+      const detailScale= d3.scaleBand().range([0,height]).domain(detailDomain).padding(0);
 
       if(d3.select('#leftAxis')._groups[0][0]===null){
 
@@ -257,7 +269,7 @@ export default {
     },
 
     getAll(){
-      const path='http://127.0.0.1:5000/query_attn_head/'+this.sentence_selected
+      const path='http://10.192.9.11:5000/query_attn_head/'+this.sentence_selected
       console.log(path)
       axios.get(path)
         .then((res) => {
