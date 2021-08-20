@@ -47,7 +47,7 @@ export default {
       token_selected: [], //被选中的token的index，用于过滤（注意是index（int)而不是token(str)，以防多个词反复出现时选取错误）
       data_to_show: [],
       widthChart: 600, // width of #scatter-plot svg
-      heightChart: 400, // height of #scatter-plot svg
+      heightChart: 300, // height of #scatter-plot svg
       padding: 60, // padding of chart
       // array of objects for the graph legend text
       legendData: [
@@ -202,6 +202,7 @@ export default {
         })
         // hover to show value with tooltip as defined in divTool above
         .on('mouseover', (event, d) => {
+          
           divTool
             .attr('class', 'tooltip')
             .html(`<p>
@@ -212,9 +213,11 @@ export default {
             .style('opacity', '1')
             .style('display', 'flex') // to align items centrally
             // funky offsets here because of setting .scatter-plot to display: relative;
-            .style('top', `${event.pageY - 25}px`)
-            .style('left', `${event.pageX + 10}px`);
+             .style('top', `${event.layerY }px`)
+            .style('left', `${event.layerX + 10}px`);
         })
+
+       
         .on('mouseout', () => {
           divTool
             .style('opacity', 0)
@@ -357,5 +360,4 @@ export default {
     font-style: italic;
   }
 }
-
 </style>

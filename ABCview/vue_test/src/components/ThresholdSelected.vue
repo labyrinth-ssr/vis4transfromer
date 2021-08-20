@@ -1,7 +1,7 @@
 <template>
   <div id="layer-selected">
     <a-slider :marks='marks' :max=0.5 :min=0.1 :step=0.1 :default-value="0.4" 
-              @afterChange = "afterChange"
+      @afterChange="onAfterChange" 
               />
   </div>
 </template>
@@ -12,10 +12,12 @@ import bus from './bus'
 export default {
   name: 'ThresholdSelected',
   methods: {
-     afterChange(value) {
+     onAfterChange(value) {
+       console.log('after change')
       this.threshold = value;
       bus.$emit("dispatchthreshold",this.threshold);
-    }
+    },
+    
   },
   data(){
     return {

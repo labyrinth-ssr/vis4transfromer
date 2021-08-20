@@ -16,6 +16,13 @@ export default {
                 .remove();                    //清空SVG中的内容
             this.drawParagraph(this.tokens,this.SVGPadding,this.textTokenPadding);
         })
+        bus.$on('highlightToken',val=>{
+            d3.select('#node-'+val).attr("stroke","#ff6131")
+
+        })
+        bus.$on('unhighlight',val=>{
+            d3.select('#node-'+val).attr("stroke",'none')
+        })
     },
     data(){
         return{

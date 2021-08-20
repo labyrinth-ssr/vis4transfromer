@@ -8,7 +8,7 @@ from flask_cors import CORS  # 前后端分离跨域
 from attn_process import attnProcess
 from head_importance import process_impo
 from functools import reduce
-from attribution_tree import attribution_tree
+# from attribution_tree import attribution_tree
 import re
 
 
@@ -40,7 +40,7 @@ def query_tsne():
 
 @app.route("/query_attn_head/<int:sentence_id>")
 def query_attn_head(sentence_id):
-    with open('./att_attr_all/att_score_zero_base_exp'+str(sentence_id)+'.ndjson') as load_f:
+    with open('./att_attr_all/att_score_zero_base_exp'+str(sentence_id)+'.json') as load_f:
         py_data = ndjson.load(load_f)
     with open('./data_generation/output/head_importance_attr.json', 'r') as load_f2:
         py_data2 = json.load(load_f2)

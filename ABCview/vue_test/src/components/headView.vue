@@ -43,8 +43,8 @@ export default {
         .remove();
       // set the dimensions and margins of the graph
       const margin = { top: 20, right: 30, bottom: 40, left: 50 },
-        width = 840 - margin.left - margin.right,
-        height = 600 - margin.top - margin.bottom;
+        width = 700 - margin.left - margin.right,
+        height = 450 - margin.top - margin.bottom;
 
       const detailWidth=200
       const background_color='steelblue'
@@ -139,7 +139,7 @@ export default {
 
       svg.append('g')
         .attr('id','detail')
-        .attr('transform','translate('+(height+margin.right) +',-15)')
+        .attr('transform','translate('+(height+margin.right) +',0)')
 
       var click=function(d,data){//todo:
 

@@ -25,8 +25,8 @@ export default {
       this.nodes=temp
           console.log(this.nodes)
       this.sentence_selected = val[1];
-      console.log(this.sentence_selected)
-      this.update();
+
+      this.setThreshold(this.threshold)
     }),
     bus.$on('dispatchthreshold',val=>{
       this.threshold=val;
@@ -38,7 +38,7 @@ export default {
   data() {
     return {
       data: [],
-      sentence_selected:5, //初始时自动选择第一句
+      sentence_selected:5, //初始时自动选择第6句
       tokens:[],
       nodes:[],
       threshold:0.4
@@ -47,7 +47,6 @@ export default {
   methods: {
 update(){
       
-      console.log(this.sentence_selected)//清空SVG中的内容
       this.getAll();
     },
 
@@ -57,17 +56,17 @@ d3.select('#AttrTreeSvg').remove()
       d3.select('#AttrTreeSvg')
         .selectAll('*')
         .remove();
-      var margin = { top: 60, right: 50, bottom: 50, left: 10 },
-        width = 800 - margin.left - margin.right,
-        height = 500 - margin.top - margin.bottom;
+      var margin = { top: 10, right: 90, bottom: 10, left: 10 },
+        width = 700 - margin.left - margin.right,
+        height = 450 - margin.top - margin.bottom;
       const sankeyWidth=height,snakeyHeight=width;
 
       // format variables
-      var formatNumber = d3.format(",.0f"), // zero decimal places
-        format = function (d) {
-          return formatNumber(d);
-        },
-        color = d3.scaleOrdinal(d3.schemePaired);
+      // var formatNumber = d3.format(",.0f"), // zero decimal places
+      //   format = function (d) {
+      //     return formatNumber(d);
+      //   },
+      var  color = d3.scaleOrdinal(d3.schemePaired);
       
       const textData_index=Object.keys(textData)
 
@@ -151,7 +150,7 @@ d3.select('#AttrTreeSvg').remove()
 
       // add the link titles
       link.append("title").text(function (d) {
-        return d.source.name + " → " + d.target.name + "\n" + format(d.value);
+        return d.source.name + " → " + d.target.name ;
       });
 
       // add in the graph
@@ -161,7 +160,8 @@ d3.select('#AttrTreeSvg').remove()
         .data(graph.nodes)
         .enter()
         .append("g")
-        .attr("class", "node");
+        .attr("class", "node")
+        
 
       
 
@@ -179,6 +179,12 @@ d3.select('#AttrTreeSvg').remove()
           return Math.max(1,d.targetLinks.length)*x.bandwidth() ;
         })
         .attr("width", sankey.nodeWidth())
+        .on('mouseover',function(event,data){
+          bus.$emit('highlightToken',data.index)
+        })
+        .on('mouseleave',function(e,data){
+          bus.$emit('unhighlight',data.index)
+        })
         .style("fill", function (d) {
 
           if((d.targetLinks.length+d.sourceLinks.length)=== 0){
@@ -190,7 +196,7 @@ d3.select('#AttrTreeSvg').remove()
         .style("opacity",0.5)
         .append("title")
         .text(function (d) {
-          return d.name + "\n" + format(d.value);
+          return d.name ;
         });
 
         node.append('text')
@@ -239,9 +245,18 @@ d3.select('#AttrTreeSvg').remove()
     }
   },
   mounted() {
-    this.setThreshold(0.4)
+    this.setThreshold(this.threshold)
     // this.getAll()
   },
 };
 </script>
+
+<style scoped>
+
+
+
+#attr-tree{
+  text-align: center;
+}
+</style>
 
