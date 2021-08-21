@@ -56,10 +56,10 @@ d3.select('#AttrTreeSvg').remove()
       d3.select('#AttrTreeSvg')
         .selectAll('*')
         .remove();
-      var margin = { top: 10, right: 90, bottom: 10, left: 10 },
-        width = 700 - margin.left - margin.right,
-        height = 450 - margin.top - margin.bottom;
-      const sankeyWidth=height,snakeyHeight=width;
+      var margin = { top: 10, right: 10, bottom: 50, left: 10 },
+        width = 400 - margin.left - margin.right,
+        height = 700- margin.top - margin.bottom;
+      const sankeyWidth=width,snakeyHeight=height;
 
       // format variables
       // var formatNumber = d3.format(",.0f"), // zero decimal places
@@ -70,7 +70,7 @@ d3.select('#AttrTreeSvg').remove()
       
       const textData_index=Object.keys(textData)
 
-        const x = d3.scaleBand().domain(textData_index).range([0,width]).padding(0);
+        const x = d3.scaleBand().domain(textData_index).range([0,height]).padding(0);
 
       // append the svg object to the body of the page
       var svg = d3
@@ -81,24 +81,24 @@ d3.select('#AttrTreeSvg').remove()
         .attr("height", height + margin.top + margin.bottom)
         .append("g")
         .attr('id','g-sankey-scale')
-        .attr("transform", " translate(" + (margin.left) + "," +( margin.top +height)+ ") rotate(-90)")
+        .attr("transform", " translate(" + (margin.left) + "," +( margin.top )+ ") ")
 
-      d3.select("svg")
-      .append('g')
-        .attr("transform", " translate(" + (margin.left) + "," +( margin.top +height)+ ')')
-      .style('font-size',7)
-      .call(d3.axisBottom(x).tickPadding(0))
-      .selectAll('.tick')
-      .data(textData)
-      .select('text')
-      .text(function(d){
-        return d;
-      })
+      // d3.select("svg")
+      // .append('g')
+      //   .attr("transform", " translate(" + (margin.left) + "," +( margin.top +height)+ ')')
+      // .style('font-size',7)
+      // .call(d3.axisBottom(x).tickPadding(0))
+      // .selectAll('.tick')
+      // .data(textData)
+      // .select('text')
+      // .text(function(d){
+      //   return d;
+      // })
 
       // Set the sankey diagram properties
       var sankey = d3Sankey()
         .nodeWidth(36)
-        .nodePadding(15)//最好换成一个函数
+        .nodePadding(0)//最好换成一个函数
         .size([sankeyWidth,snakeyHeight])
         // .nodeAlign(d3[`sankey${align[0].toUpperCase()}${align.slice(1)}`])
         .nodeId(function id(d) {
@@ -207,7 +207,7 @@ d3.select('#AttrTreeSvg').remove()
       // .data(d3.select(this.parentNode).datum())
       .attr('class','textG')
       .attr('transform',function(d){
-        return 'translate('+d.x0+','+d.y0+') rotate(45)'
+        return 'translate('+d.x0+','+d.y0+') '
       })
 
     },
@@ -257,6 +257,8 @@ d3.select('#AttrTreeSvg').remove()
 
 #attr-tree{
   text-align: center;
+  width:100%;
+  overflow: hidden;
 }
 </style>
 

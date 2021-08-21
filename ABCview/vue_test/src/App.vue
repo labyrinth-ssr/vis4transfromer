@@ -1,32 +1,32 @@
 <template>
   <div id="app">
-    <a-row id='row1' :gutter="[2, 2]">
-      <a-col :span='12'>
-        <div id='tableContainer' class="container"> 
-        <ScrollingTable />
+    <div id="leftCol">
+      <div id="row1">
+        <div id="tableContainer" class="container">
+          <ScrollingTable />
           <TokenTable />
         </div>
-      </a-col>
-      <a-col :span='12'>
-        <div id='attrTree_container' class="container">
-          <ThresholdSelected />
-          <AttrTree></AttrTree>
+      </div>
+      <div id='row2'>
+        <div id="sleftCol">
+          <div id="tsneContainer" class="container">
+            <LayerSelected />
+            <ScatterPlot />
+          </div>
         </div>
-      </a-col>
-    </a-row >
-    <a-row id='row2' :gutter="[2, 2]">
-      <a-col :span='12'>
-        <div id='tsneContainer' class="container">
-        <LayerSelected />
-          <ScatterPlot />
+        <div id="srightCol">
+          <div id="att_container" class="container">
+            <AttnHead></AttnHead>
+          </div>
         </div>
-      </a-col>
-      <a-col :span='12'>
-        <div id='att_container' class="container">
-          <AttnHead></AttnHead>
-        </div>
-      </a-col>
-    </a-row>
+      </div>
+    </div>
+    <div id="rightCol">
+      <div id="attrTree_container" class="container">
+        <ThresholdSelected />
+        <AttrTree></AttrTree>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -36,8 +36,8 @@ import LayerSelected from "./components/LayerSelected.vue";
 import ScrollingTable from "./components/ScrollingTable.vue";
 import TokenTable from "./components/TokenTable.vue";
 import AttnHead from "./components/headView.vue";
-import AttrTree from './components/AttrTree.vue'
-import ThresholdSelected from './components/ThresholdSelected.vue'
+import AttrTree from "./components/AttrTree.vue";
+import ThresholdSelected from "./components/ThresholdSelected.vue";
 
 export default {
   name: "App",
@@ -48,22 +48,61 @@ export default {
     TokenTable,
     AttnHead,
     AttrTree,
-    ThresholdSelected
+    ThresholdSelected,
   },
 };
 </script>
 
 <style>
-html,body { height: 100%; padding: 0; margin: 0; }
+html,
+body {
+  height: 100%;
+  padding: 0;
+  margin: 0;
+}
 #app {
-        height: 100%;
-        width: 100%;
-        box-sizing: border-box;
-        /* display: flex; */
-        overflow: hidden;
+  display: flex;
+  height: 100%;
+  width: 100%;
+  box-sizing: border-box;
+  overflow: auto;
+  flex-direction: row;
+}
+#leftCol {
+  width: 65%;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid darkred;
 
 }
-.ant-row{
+#rightCol {
+  width: 35%;
+  border: 1px solid darkred;
+
+}
+#row1 {
+  height: 40%;
+  border: 1px solid darkred;
+
+}
+#row2 {
+  display: flex;
+  flex-direction: row;
+  height: 60%;
+  border: 1px solid darkred;
+
+}
+#sleftCol {
+  width: 40%;
+  border: 1px solid darkred;
+
+}
+#srightCol {
+  width: 60%;
+  border: 1px solid darkred;
+
+}
+/* .ant-row {
   box-sizing: border-box;
   height: 50%;
   width: 100%;
@@ -73,17 +112,17 @@ html,body { height: 100%; padding: 0; margin: 0; }
   height: 40%;
   width: 100%;
 } */
-.ant-col{
+/* .ant-col {
   box-sizing: border-box;
   height: 100%;
-}
-.container{
+}  */
+/* .container {
   box-sizing: border-box;
   height: 100%;
   width: 100%;
   border: 1px solid darkred;
   overflow: auto;
-}
+} */
 
 /* #sentence {
   font-family: "Avenir", Helvetica, Arial, sans-serif;

@@ -17,7 +17,7 @@ export default {
             this.drawParagraph(this.tokens,this.SVGPadding,this.textTokenPadding);
         })
         bus.$on('highlightToken',val=>{
-            d3.select('#node-'+val).attr("stroke","#ff6131")
+            d3.select('#node-'+val).attr("stroke","#87CEFA")
 
         })
         bus.$on('unhighlight',val=>{

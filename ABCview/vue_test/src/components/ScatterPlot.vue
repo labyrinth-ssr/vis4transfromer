@@ -48,7 +48,7 @@ export default {
       data_to_show: [],
       widthChart: 600, // width of #scatter-plot svg
       heightChart: 300, // height of #scatter-plot svg
-      padding: 60, // padding of chart
+      padding: 10, // padding of chart
       // array of objects for the graph legend text
       legendData: [
         {
@@ -359,5 +359,17 @@ export default {
   & .doping-text {
     font-style: italic;
   }
+}
+
+.container-scatter-plot{
+  height: 100%;
+  overflow: hidden;
+}
+#scatter-plot{
+  height: 90%;
+  // overflow: hidden;
+}
+#title{
+  height: 10%;
 }
 </style>
