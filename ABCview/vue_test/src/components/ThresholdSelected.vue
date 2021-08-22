@@ -13,7 +13,6 @@ export default {
   name: 'ThresholdSelected',
   methods: {
      onAfterChange(value) {
-       console.log('after change')
       this.threshold = value;
       bus.$emit("dispatchthreshold",this.threshold);
     },

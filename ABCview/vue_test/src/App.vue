@@ -69,23 +69,27 @@ body {
   flex-direction: row;
 }
 #leftCol {
-  width: 65%;
+  width: 70%;
   flex-direction: column;
   overflow: hidden;
   border: 1px solid darkred;
 
 }
 #rightCol {
-  width: 35%;
+  width: 30%;
   border: 1px solid darkred;
 
 }
 #row1 {
+  display: flex;
+  box-sizing: border-box;
+
   height: 40%;
   border: 1px solid darkred;
 
 }
 #row2 {
+
   display: flex;
   flex-direction: row;
   height: 60%;
@@ -100,6 +104,15 @@ body {
 #srightCol {
   width: 60%;
   border: 1px solid darkred;
+
+}
+/* .container{
+  
+} */
+#tableContainer{
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
 
 }
 /* .ant-row {

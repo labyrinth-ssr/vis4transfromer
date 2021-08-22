@@ -17,11 +17,11 @@ export default {
             this.drawParagraph(this.tokens,this.SVGPadding,this.textTokenPadding);
         })
         bus.$on('highlightToken',val=>{
-            d3.select('#node-'+val).attr("stroke","#87CEFA")
+            d3.select('#node-'+val).selectChild('rect').style('fill','Lavender')
 
         })
         bus.$on('unhighlight',val=>{
-            d3.select('#node-'+val).attr("stroke",'none')
+            d3.select('#node-'+val).selectChild('rect').style('fill','white')
         })
     },
     data(){
@@ -34,8 +34,8 @@ export default {
                 top:2, bottom:2,
                 left:5, right:5,
             },
-            width:700,
-            height:400,
+            width:1000,
+            height:300,
             tokens: [
                 "[CLS]",
                 "The",
@@ -281,6 +281,11 @@ export default {
 </script>
 
 <style>
+#tokentable{
+  overflow: auto;
+
+}
+
 .node-group g:hover {
     fill:grey;
 }

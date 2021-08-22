@@ -8,6 +8,7 @@
 import * as d3 from "d3";
 import axios from "axios";
 import bus from './bus';
+// import func from 'vue-editor-bridge';
 
 // import visData from '../../../data/attn_head.json'
 //need:token,importance data
@@ -18,12 +19,16 @@ export default {
     bus.$on('dispatchsentencetoshow',val=>{
       this.tokens=val[0]
       this.sentence_selected = val[1];
-      console.log(this.sentence_selected)
       this.update();
     })
+    
   },
   data() {
     return {
+      // background_color:'steelblue',
+      // lineColor:'LightCoral',
+
+
       data: [],
       sentence_selected:5, //初始时自动选择第一句
       token_selected: [], //被选中的token的index，用于过滤（注意是index（int)而不是token(str)，以防多个词反复出现时选取错误）
@@ -31,25 +36,31 @@ export default {
     };
   },
   methods: {
+    
     update(){
       
-      console.log(this.sentence_selected)                    //清空SVG中的内容
       this.getAll();
     },
     draw(myData,tokens,detail_attn) {
+      
+      const background_color='steelblue'
+      const lineColor='lightCoral'
+
       d3.select('#attnSvg').remove()
       d3.select('#attnSvg')
         .selectAll('*')
         .remove();
       // set the dimensions and margins of the graph
-      const margin = { top: 20, right: 30, bottom: 40, left: 50 },
+
+      bus.$on('dispatchtokentoshow',val=>{
+      highlightSelection(val);
+    })
+      const margin = { top: 20, right: 30, bottom: 40, left: 30 },
         width = 700 - margin.left - margin.right,
         height = 450 - margin.top - margin.bottom;
 
       const detailWidth=200
-      const background_color='steelblue'
 
-      const lineColor='LightCoral'
 
       // append the svg object to the body of the page
       const svg = d3
@@ -75,17 +86,20 @@ export default {
         .data(axisContent)
         .select("text")
         .text(function (d) {
-          return d;
+          if(d==0){
+            return 'head'+1
+          }
+          return d+1;
         });
 
-        d3.select('.xAxis')
-        .append('text')
-        .attr('x',height/2)
-        .attr('y',30)
-        .attr('fill','black')
-        .text('head')
-        .attr('text-anchor','middle')
-        .style("font-size", 15)
+        // d3.select('.xAxis')
+        // .append('text')
+        // .attr('x',height/2)
+        // .attr('y',30)
+        // .attr('fill','black')
+        // .text('head')
+        // .attr('text-anchor','middle')
+        // .style("font-size", 15)
 
         
 
@@ -101,17 +115,20 @@ export default {
         .data(axisContent)
         .select("text")
         .text(function (d) {
-          return d;
+          if(d==0){
+            return 'layer'+1
+          }
+          return d+1;
         });
 
-        d3.select('.yAxis')
-        .append('text')
-        .attr('x',-30)
-        .attr('y',height/2)
-        .attr('fill','black')
-        .text('layer')
-        .attr('text-anchor','middle')
-        .style("font-size", 15)
+        // d3.select('.yAxis')
+        // .append('text')
+        // .attr('x',-30)
+        // .attr('y',height/2)
+        // .attr('fill','black')
+        // .text('layer')
+        // .attr('text-anchor','middle')
+        // .style("font-size", 15)
       d3.selectAll(".domain").remove();
 
       var valArr=[]
@@ -153,16 +170,18 @@ export default {
 
         const tickData=Object.entries(tokens)
       
-      d3.select('#detail').style("font-size", 10).append('g')
+      d3.select('#detail').append('g').style("font-size",15)
         .attr("id", "leftAxis")
         .call(d3.axisLeft(detailScale).tickSize(0))
         .selectAll(".tick")
         .attr('class','leftTick')
         .data(tickData)
         .select("text")
+        .attr('class','leftText')
         .text(function (d) {
           return d[1];
         })
+        .style('opacity',0)
 
         d3.select('#leftAxis')
         .selectAll('.tokenContainer')
@@ -192,11 +211,17 @@ export default {
         .call(d3.axisRight(detailScale).tickSize(0))
         .selectAll(".tick")
         .attr('class','rightTick')
-        .data(tokens)
+        .data(tickData)
         .select("text")
+        .attr('class','rightText')
+        .attr('id',function(d){
+          return 'rightText'+d[0];
+        })
         .text(function (d) {
-          return d;
-        });
+          return d[1];
+        })
+        .style('opacity',1)
+
       d3.selectAll(".domain").remove();
 
       }
@@ -222,14 +247,16 @@ export default {
       }
 
       svg
-        .selectAll()
+        .selectAll('.impo_rect')
         .data(myData)
         .join('rect')
+        .attr('class','impo_rect')
           .attr("x", function (d) {
-            return x(d.layer);
+            // console.log('layer '+d.layer+'head '+d.head+'impo '+d.val)
+            return x(d.head);
           })
           .attr("y", function (d) {
-            return x(d.head);
+            return x(d.layer);
           })
           .attr("rx", 4)
           .attr("ry", 4)
@@ -246,6 +273,7 @@ export default {
         .on('click',click)
 
          function highlightSelection(index) {
+          //  var targets=[]
         d3
           .selectAll(".tokenContainer")
           .attr("fill", background_color)
@@ -255,8 +283,20 @@ export default {
         d3
           .selectAll(".attn")
           .style("opacity", function (d) {
+            // if(d.source==+index){
+            //   console.log(d.target)
+            //   d3.select('#rightText'+d.target).style("opacity",1)
+
+            // }
+            // console.log(targets)
             return d.source == (+index) ? 1.0 : 0.0;
           });
+
+          d3.selectAll('.leftText')
+          .style('opacity',function(d){
+            return d[0] == (+index)? 1:0;
+          })
+
       }
 
       function unhighlightSelection() {
@@ -270,7 +310,6 @@ export default {
 
     getAll(){
       const path='http://10.192.9.11:5000/query_attn_head/'+this.sentence_selected
-      console.log(path)
       axios.get(path)
         .then((res) => {
           var impo_data = res.data.importance;

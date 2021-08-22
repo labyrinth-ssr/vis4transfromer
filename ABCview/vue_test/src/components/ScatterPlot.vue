@@ -202,6 +202,7 @@ export default {
         })
         // hover to show value with tooltip as defined in divTool above
         .on('mouseover', (event, d) => {
+          console.log(event);
           
           divTool
             .attr('class', 'tooltip')
@@ -213,7 +214,7 @@ export default {
             .style('opacity', '1')
             .style('display', 'flex') // to align items centrally
             // funky offsets here because of setting .scatter-plot to display: relative;
-             .style('top', `${event.layerY }px`)
+             .style('top', `${event.clientY }px`)
             .style('left', `${event.layerX + 10}px`);
         })
 

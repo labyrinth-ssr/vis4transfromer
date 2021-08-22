@@ -23,7 +23,6 @@ export default {
           temp.push({'node': `${index}`, 'name': token})
       })
       this.nodes=temp
-          console.log(this.nodes)
       this.sentence_selected = val[1];
 
       this.setThreshold(this.threshold)
@@ -136,7 +135,9 @@ d3.select('#AttrTreeSvg').remove()
         .attr("class", "link")
         .attr("d", d3SsankeyLinkHorizontal())
         .attr('fill','none')
-        .attr('stroke','grey')
+        .attr('stroke',function(d){
+          return color(d.source.name.replace(/ .*/, ""))
+        })
         .style('opacity',0.3)
         .style("stroke-width", function (d) {
           return d.width;
@@ -179,6 +180,9 @@ d3.select('#AttrTreeSvg').remove()
           return Math.max(1,d.targetLinks.length)*x.bandwidth() ;
         })
         .attr("width", sankey.nodeWidth())
+        .on('click',function(event,data){
+          bus.$emit("dispatchtokentoshow",data.index)
+        })
         .on('mouseover',function(event,data){
           bus.$emit('highlightToken',data.index)
         })
@@ -207,7 +211,7 @@ d3.select('#AttrTreeSvg').remove()
       // .data(d3.select(this.parentNode).datum())
       .attr('class','textG')
       .attr('transform',function(d){
-        return 'translate('+d.x0+','+d.y0+') '
+        return 'translate('+d.x0+','+(d.y0+1/2*Math.max(1,d.targetLinks.length)*x.bandwidth()) +') '
       })
 
     },
@@ -237,7 +241,6 @@ d3.select('#AttrTreeSvg').remove()
       const path='http://10.192.9.11:5000/query_attr_tree/'+this.sentence_selected
       axios.post(path,{'sts_id':this.sentence_selected,'threshold':threshold})
       .then(()=>{
-        console.log('post!')
         this.getAll()
         
       }
