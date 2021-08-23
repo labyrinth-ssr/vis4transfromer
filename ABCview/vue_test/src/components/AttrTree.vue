@@ -55,9 +55,9 @@ d3.select('#AttrTreeSvg').remove()
       d3.select('#AttrTreeSvg')
         .selectAll('*')
         .remove();
-      var margin = { top: 10, right: 10, bottom: 50, left: 10 },
-        width = 400 - margin.left - margin.right,
-        height = 700- margin.top - margin.bottom;
+      var margin = { top: 10, right: 10, bottom: 30, left: 10 },
+        width = document.getElementById('attr-tree').clientWidth - margin.left - margin.right,
+        height = document.getElementById('attr-tree').clientHeight - margin.top - margin.bottom;
       const sankeyWidth=width,snakeyHeight=height;
 
       // format variables
@@ -177,6 +177,8 @@ d3.select('#AttrTreeSvg').remove()
           return d.y0;
         })
         .attr("height", function (d) {
+          // return d.y1-d.y0;
+
           return Math.max(1,d.targetLinks.length)*x.bandwidth() ;
         })
         .attr("width", sankey.nodeWidth())
@@ -201,18 +203,19 @@ d3.select('#AttrTreeSvg').remove()
         .append("title")
         .text(function (d) {
           return d.name ;
-        });
-
-        node.append('text')
+        })
+      //   d3.selectAll('.nodeRect').append('g') 
+      // .data(d3.select(this.parentNode).datum())
+      node.attr('class','textG')
+      .append('text')
       .attr('font-size',10)
       .text(function(d){
         return d.name
       })
-      // .data(d3.select(this.parentNode).datum())
-      .attr('class','textG')
       .attr('transform',function(d){
-        return 'translate('+d.x0+','+(d.y0+1/2*Math.max(1,d.targetLinks.length)*x.bandwidth()) +') '
+        return 'translate('+d.x0+','+(d.y0+1/2*Math.max(1,d.targetLinks.length)*x.bandwidth()+5) +') '
       })
+      .attr('text-anchor','start')
 
     },
     getAll(){
@@ -259,6 +262,7 @@ d3.select('#AttrTreeSvg').remove()
 
 
 #attr-tree{
+  height: 95%;
   text-align: center;
   width:100%;
   overflow: hidden;

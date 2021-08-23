@@ -35,4 +35,7 @@ export default {
 </script>
 
 <style>
+#threshold-selected{
+  height: 5%;
+}
 </style>

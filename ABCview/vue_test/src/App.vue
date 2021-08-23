@@ -115,6 +115,9 @@ body {
   flex-direction: column;
 
 }
+#attrTree_container{
+  height: 100%;
+}
 /* .ant-row {
   box-sizing: border-box;
   height: 50%;
