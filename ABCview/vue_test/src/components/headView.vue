@@ -28,10 +28,10 @@ export default {
       // background_color:'steelblue',
       // lineColor:'LightCoral',
 
-
+      impo_data:[],
+      attn_data:[],
       data: [],
       sentence_selected:5, //初始时自动选择第一句
-      token_selected: [], //被选中的token的index，用于过滤（注意是index（int)而不是token(str)，以防多个词反复出现时选取错误）
       tokens:[]
     };
   },
@@ -41,10 +41,7 @@ export default {
       
       this.getAll();
     },
-    draw(myData,tokens,detail_attn) {
-      
-      const background_color='steelblue'
-      const lineColor='lightCoral'
+    draw(myData) {
 
       d3.select('#attnSvg').remove()
       d3.select('#attnSvg')
@@ -52,14 +49,11 @@ export default {
         .remove();
       // set the dimensions and margins of the graph
 
-      bus.$on('dispatchtokentoshow',val=>{
-      highlightSelection(val);
-    })
-      const margin = { top: 20, right: 30, bottom: 40, left: 30 },
+      
+      const margin = { top: 20, right: 30, bottom: 40, left: 15 },
         width = 700 - margin.left - margin.right,
         height = 450 - margin.top - margin.bottom;
 
-      const detailWidth=200
 
 
       // append the svg object to the body of the page
@@ -92,20 +86,6 @@ export default {
           return d+1;
         });
 
-        // d3.select('.xAxis')
-        // .append('text')
-        // .attr('x',height/2)
-        // .attr('y',30)
-        // .attr('fill','black')
-        // .text('head')
-        // .attr('text-anchor','middle')
-        // .style("font-size", 15)
-
-        
-
-
-      // Build Y scales and axis:
-      // const y = d3.scaleBand().range([height, 0]).domain(arry).padding(0.05);
       svg
         .append("g")
         .attr('class','yAxis')
@@ -121,14 +101,6 @@ export default {
           return d+1;
         });
 
-        // d3.select('.yAxis')
-        // .append('text')
-        // .attr('x',-30)
-        // .attr('y',height/2)
-        // .attr('fill','black')
-        // .text('layer')
-        // .attr('text-anchor','middle')
-        // .style("font-size", 15)
       d3.selectAll(".domain").remove();
 
       var valArr=[]
@@ -154,97 +126,98 @@ export default {
         .style('opacity',0.8)
       }
 
-      svg.append('g')
-        .attr('id','detail')
-        .attr('transform','translate('+(height+margin.right) +',0)')
+      // svg.append('g')
+      //   .attr('id','detail')
+      //   .attr('transform','translate('+(height+margin.right) +',0)')
 
-      var click=function(d,data){//todo:
+      // var click=function(d,data,){//todo:
+      // const req_data=detail_attn.filter(ele=>ele.layer===data.layer&&ele.head===data.head)//迷之..是个数组
+      // var line_data=req_data[0].attn
 
-      const req_data=detail_attn.filter(ele=>ele.layer===data.layer&&ele.head===data.head)//迷之..是个数组
-      var line_data=req_data[0].attn
+      // const detailDomain=Object.keys(tokens)
+      // const detailScale= d3.scaleBand().range([0,height]).domain(detailDomain).padding(0);
+      // if(d3.select('#leftAxis')._groups[0][0]===null){
 
-      const detailDomain=Object.keys(tokens)
-      const detailScale= d3.scaleBand().range([0,height]).domain(detailDomain).padding(0);
-
-      if(d3.select('#leftAxis')._groups[0][0]===null){
-
-        const tickData=Object.entries(tokens)
+      //   const tickData=Object.entries(tokens)
       
-      d3.select('#detail').append('g').style("font-size",10)
-        .attr("id", "leftAxis")
-        .call(d3.axisLeft(detailScale).tickSize(0))
-        .selectAll(".tick")
-        .attr('class','leftTick')
-        .data(tickData)
-        .select("text")
-        .attr('class','leftText')
-        .text(function (d) {
-          return d[1];
-        })
-        .style('opacity',0)
+      // d3.select('#detail').append('g').style("font-size",10)
+      //   .attr("id", "leftAxis")
+      //   .call(d3.axisLeft(detailScale).tickSize(0))
+      //   .selectAll(".tick")
+      //   .attr('class','leftTick')
+      //   .data(tickData)
+      //   .select("text")
+      //   .attr('class','leftText')
+      //   .text(function (d) {
+      //     return d[1];
+      //   })
+      //   .style('opacity',0)
 
-        d3.select('#leftAxis')
-        .selectAll('.tokenContainer')
-        .data(tickData)
-        .join('rect')
-        .attr('class','tokenContainer')
-        .attr('x',-margin.right)
-        .attr('y',function(d){
-          return detailScale(d[0])
-        })
-        .attr('width',margin.right)
-        .attr('height',detailScale.bandwidth())
-        .attr('fill','blue')
-        .style('opacity',0.0)
-        .on('mouseover',function(d,data){
-          highlightSelection(data[0])
-        })
-        .on('mouseleave',function(){
-          unhighlightSelection()
-        })
-        
+      //   d3.select('#leftAxis')
+      //   .selectAll('.tokenContainer')
+      //   .data(tickData)
+      //   .join('rect')
+      //   .attr('class','tokenContainer')
+      //   .attr('x',-margin.right)
+      //   .attr('y',function(d){
+      //     return detailScale(d[0])
+      //   })
+      //   .attr('width',margin.right)
+      //   .attr('height',detailScale.bandwidth())
+      //   .attr('fill','blue')
+      //   .style('opacity',0.0)
+      //   .on('mouseover',function(d,data){
+      //     highlightSelection(data[0])
+      //   })
+      //   .on('mouseleave',function(){
+      //     unhighlightSelection()
+      //   })
 
-      d3.select('#detail').append("g")
-        .style("font-size", 10)
-        .attr('transform','translate('+(detailWidth-margin.right)+',0)')
-        .attr('id','rightAxis')
-        .call(d3.axisRight(detailScale).tickSize(0))
-        .selectAll(".tick")
-        .attr('class','rightTick')
-        .data(tickData)
-        .select("text")
-        .attr('class','rightText')
-        .attr('id',function(d){
-          return 'rightText'+d[0];
-        })
-        .text(function (d) {
-          return d[1];
-        })
-        .style('opacity',1)
+      //   token_selected.forEach(function(token){
+      //   highlightSelection(token);
+      // })
 
-      d3.selectAll(".domain").remove();
+      // d3.select('#detail').append("g")
+      //   .style("font-size", 10)
+      //   .attr('transform','translate('+(detailWidth-margin.right)+',0)')
+      //   .attr('id','rightAxis')
+      //   .call(d3.axisRight(detailScale).tickSize(0))
+      //   .selectAll(".tick")
+      //   .attr('class','rightTick')
+      //   .data(tickData)
+      //   .select("text")
+      //   .attr('class','rightText')
+      //   .attr('id',function(d){
+      //     return 'rightText'+d[0];
+      //   })
+      //   .text(function (d) {
+      //     return d[1];
+      //   })
+      //   .style('opacity',1)
 
-      }
+      // d3.selectAll(".domain").remove();
+
+      // }
       
-      d3.select('#detail').selectAll('.attn')
-        .data(line_data)
-        .join('line')
-        .attr('class','attn')
-        .attr('x1',5)
-        .attr('y1',function(d){
-            return (detailScale(`${d.source}`)+(detailScale.bandwidth())/2)
-        })
-        .attr('x2',detailWidth-margin.right)
-        .attr('y2',function(d){
-            return detailScale(`${d.target}`)+detailScale.bandwidth()/2
-        })
-        .attr('stroke-width',2.2)
-        .attr('stroke',lineColor)
-        .attr('stroke-opacity',function(d){
-            return +d.val
-        })
+      // d3.select('#detail').selectAll('.attn')
+      //   .data(line_data)
+      //   .join('line')
+      //   .attr('class','attn')
+      //   .attr('x1',5)
+      //   .attr('y1',function(d){
+      //       return (detailScale(`${d.source}`)+(detailScale.bandwidth())/2)
+      //   })
+      //   .attr('x2',detailWidth-margin.right)
+      //   .attr('y2',function(d){
+      //       return detailScale(`${d.target}`)+detailScale.bandwidth()/2
+      //   })
+      //   .attr('stroke-width',2.2)
+      //   .attr('stroke',lineColor)
+      //   .attr('stroke-opacity',function(d){
+      //       return +d.val
+      //   })
 
-      }
+      // }
 
       svg
         .selectAll('.impo_rect')
@@ -270,41 +243,46 @@ export default {
           .style("opacity", 0.8)
         .on('mouseover',mouseover)
         .on('mouseleave',mouseleave)
-        .on('click',click)
+        .on('click',function(event,data){
+          d3.select(this)
+        .style('stroke','black')
+        .style('opacity',1)
+          bus.$emit('dispatchheadtoshow',[data.layer,data.head])
+        })
 
-         function highlightSelection(index) {
-          //  var targets=[]
-        d3
-          .selectAll(".tokenContainer")
-          .attr("fill", background_color)
-          .style("opacity", function (d) {
-            return d[0] == index ? 0.3: 0.0;
-          });
-        d3
-          .selectAll(".attn")
-          .style("opacity", function (d) {
-            // if(d.source==+index){
-            //   console.log(d.target)
-            //   d3.select('#rightText'+d.target).style("opacity",1)
+      //    function highlightSelection(index) {
+      //     //  var targets=[]
+      //   d3
+      //     .selectAll(".tokenContainer")
+      //     .attr("fill", background_color)
+      //     .style("opacity", function (d) {
+      //       return d[0] == index ? 0.3: 0.0;
+      //     });
+      //   d3
+      //     .selectAll(".attn")
+      //     .style("opacity", function (d) {
+      //       // if(d.source==+index){
+      //       //   console.log(d.target)
+      //       //   d3.select('#rightText'+d.target).style("opacity",1)
 
-            // }
-            // console.log(targets)
-            return d.source == (+index) ? 1.0 : 0.0;
-          });
+      //       // }
+      //       // console.log(targets)
+      //       return d.source == (+index) ? 1.0 : 0.0;
+      //     });
 
-          d3.selectAll('.leftText')
-          .style('opacity',function(d){
-            return d[0] == (+index)? 1:0;
-          })
+      //     d3.selectAll('.leftText')
+      //     .style('opacity',function(d){
+      //       return d[0] == (+index)? 1:0;
+      //     })
 
-      }
+      // }
 
-      function unhighlightSelection() {
-        d3
-          .selectAll(".tokenContainer")
-          .style("opacity", 0.0);
-        d3.selectAll(".attn").style("opacity", 1);
-      }
+      // function unhighlightSelection() {
+      //   d3
+      //     .selectAll(".tokenContainer")
+      //     .style("opacity", 0.0);
+      //   d3.selectAll(".attn").style("opacity", 1);
+      // }
 
     },
 
@@ -312,16 +290,16 @@ export default {
       const path='http://10.192.9.11:5000/query_attn_head/'+this.sentence_selected
       axios.get(path)
         .then((res) => {
-          var impo_data = res.data.importance;
+          this.impo_data = res.data.importance;
           var tokens =res.data.tokens
-          var attn_data=res.data.detail
+          this.attn_data=res.data.detail
 
           if(this.tokens.length!=0){
             tokens=this.tokens
           }
           
           // console.log()
-          this.draw(impo_data,tokens,attn_data)
+          this.draw(this.impo_data,tokens,this.attn_data)
         }
         )
         .catch((error) => {
@@ -337,3 +315,10 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+#attn-graph{
+  border-radius: 10px;
+    background: white;
+}
+</style>

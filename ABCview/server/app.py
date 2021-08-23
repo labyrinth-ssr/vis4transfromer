@@ -43,9 +43,16 @@ def query_attn_head(sentence_id):
         py_data3 = json.load(load_f3)
         return jsonify({
             'importance': process_impo(py_data2),
-        'detail': attnProcess(py_data),
         'tokens': py_data3
         })
+
+@app.route("/query_attn_map/<int:sentence_id>")
+def query_attn_map(sentence_id):
+    with open('../output/att_attr_all/attr_zero_base_exp'+str(sentence_id)+'.json') as load_f:
+        py_data = ndjson.load(load_f)
+    return jsonify({
+        'detail': attnProcess(py_data)
+    })
 
 @app.route('/query_attr_tree/<int:sentence_id>',methods=['GET', 'POST'])
 def query_attr_tree(sentence_id):

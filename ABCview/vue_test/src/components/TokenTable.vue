@@ -34,8 +34,8 @@ export default {
                 top:2, bottom:2,
                 left:5, right:5,
             },
-            width:1100,
-            height:300,
+            width:800,
+            height:400,
             tokens: [
                 "[CLS]",
                 "The",

@@ -1,5 +1,6 @@
 <template>
   <div id="app">
+
     <div id="leftCol">
       <div id="row1">
         <div id="tableContainer" class="container">
@@ -21,13 +22,22 @@
         </div>
       </div>
     </div>
+
+    <div id='middleCol'>
+      <div id='attnMapContainer'>
+        <attnMap></attnMap>
+        </div>
+    </div>
+
     <div id="rightCol">
       <div id="attrTree_container" class="container">
         <ThresholdSelected />
         <AttrTree></AttrTree>
       </div>
     </div>
+
   </div>
+
 </template>
 
 <script>
@@ -38,6 +48,7 @@ import TokenTable from "./components/TokenTable.vue";
 import AttnHead from "./components/headView.vue";
 import AttrTree from "./components/AttrTree.vue";
 import ThresholdSelected from "./components/ThresholdSelected.vue";
+import attnMap from './components/attnMap.vue';
 
 export default {
   name: "App",
@@ -49,6 +60,7 @@ export default {
     AttnHead,
     AttrTree,
     ThresholdSelected,
+    attnMap
   },
 };
 </script>
@@ -61,6 +73,7 @@ body {
   margin: 0;
 }
 #app {
+  background: rgba(155, 223, 255, 0.123) ;
   display: flex;
   height: 100%;
   width: 100%;
@@ -69,23 +82,28 @@ body {
   flex-direction: row;
 }
 #leftCol {
-  width: 70%;
+  width: 55%;
   flex-direction: column;
   overflow: hidden;
-  border: 1px solid darkred;
 
 }
 #rightCol {
   width: 30%;
-  border: 1px solid darkred;
+}
+#middleCol{
+  width: 15%;
 
+}
+#attnMapContainer{
+  height: 100%;
+  width: 100%;
 }
 #row1 {
   display: flex;
   box-sizing: border-box;
 
   height: 40%;
-  border: 1px solid darkred;
+  border: 1px solid darkgrey;
 
 }
 #row2 {
@@ -93,17 +111,15 @@ body {
   display: flex;
   flex-direction: row;
   height: 60%;
-  border: 1px solid darkred;
 
 }
 #sleftCol {
-  width: 40%;
-  border: 1px solid darkred;
+  width: 50%;
+  border: 1px solid darkgrey;
 
 }
 #srightCol {
-  width: 60%;
-  border: 1px solid darkred;
+  width: 50%;
 
 }
 /* .container{
@@ -116,8 +132,12 @@ body {
 
 }
 #attrTree_container{
+  box-sizing: border-box;
+  position: relative;
+  width: 100%;
   height: 100%;
 }
+
 /* .ant-row {
   box-sizing: border-box;
   height: 50%;
@@ -136,7 +156,7 @@ body {
   box-sizing: border-box;
   height: 100%;
   width: 100%;
-  border: 1px solid darkred;
+  border: 1px solid darkgrey;
   overflow: auto;
 } */
 
@@ -151,4 +171,5 @@ body {
 .project-title {
   margin: 1rem 0 1rem 0;
 } */
+
 </style>

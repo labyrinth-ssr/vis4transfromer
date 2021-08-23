@@ -12,7 +12,6 @@ import {
 } from "d3-sankey"; 
 import bus from './bus';
 
-
 export default {
   name: "AttrTree",
   created(){//为什么是在created中监听？
@@ -55,7 +54,7 @@ d3.select('#AttrTreeSvg').remove()
       d3.select('#AttrTreeSvg')
         .selectAll('*')
         .remove();
-      var margin = { top: 10, right: 10, bottom: 30, left: 10 },
+      var margin = { top: 10, right: 10, bottom: 30, left: 1 },
         width = document.getElementById('attr-tree').clientWidth - margin.left - margin.right,
         height = document.getElementById('attr-tree').clientHeight - margin.top - margin.bottom;
       const sankeyWidth=width,snakeyHeight=height;
@@ -217,6 +216,8 @@ d3.select('#AttrTreeSvg').remove()
       })
       .attr('text-anchor','start')
 
+      d3.select('#AttrTreeSvg').attr('height',document.getElementById('g-sankey-scale').getBBox().height+margin.top)
+
     },
     getAll(){
       const path='http://10.192.9.11:5000/query_attr_tree/'+this.sentence_selected
@@ -262,10 +263,12 @@ d3.select('#AttrTreeSvg').remove()
 
 
 #attr-tree{
-  height: 95%;
+  border-radius: 10px;
+    background: white;
+  height: 92%;
   text-align: center;
   width:100%;
-  overflow: hidden;
+  overflow: auto;
 }
 </style>
 
