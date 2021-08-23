@@ -40,6 +40,11 @@ export default {
 </script>
 
 <style>
+#layer-selected{
+  width:300px;
+  height:20px;
+  margin: auto;
+}
 </style>
 
 

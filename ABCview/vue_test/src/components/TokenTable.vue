@@ -34,7 +34,7 @@ export default {
                 top:2, bottom:2,
                 left:5, right:5,
             },
-            width:1000,
+            width:1100,
             height:300,
             tokens: [
                 "[CLS]",
@@ -126,7 +126,7 @@ export default {
             let textTokenSize = this.getTokenWidth(tokens, svg);
             let textTokenWidths = textTokenSize.textTokenWidths;
             let textTokenHeight = textTokenSize.textTokenHeight;
-            let containerWidthFactor = 4 / 5;
+            let containerWidthFactor = 1;
             let containerWidth = SVGWidth * containerWidthFactor;
 
             const tokenGap = 5;
@@ -135,7 +135,7 @@ export default {
             // Add tokens
             let tokenGroup = svg.append('g')
                 // .attr('class', 'token-group-saliency')
-                .attr('class', 'token-group')
+                .attr('id', 'token-group')
                 .attr('transform', `translate(${SVGPadding.left + SVGWidth * (1 - containerWidthFactor) / 2},
                 ${SVGPadding.top})`);
             let count = -1;
@@ -220,6 +220,8 @@ export default {
                     bus.$emit("dispatchtokentoshow",i)//单击事件：传递需要在tsne视图中显示或删除的token的index
                 })
             })
+
+            d3.select('#tokensvg').attr('height',document.getElementById("token-group").getBBox().height)
             // Create legend for the saliency map view
             // let legendGroup = svg.append('g')
             //     .attr('class', 'legend-group')

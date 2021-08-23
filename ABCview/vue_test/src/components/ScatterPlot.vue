@@ -1,8 +1,9 @@
 <template>
   <div class="container-scatter-plot">
-    <h2 id="title" class="chart-title">
-      <a-button id="startLine" type="primary">Motion trajectory></a-button>
-    </h2>
+    <div id="title" class="chart-title">
+      <a-button id="startLine" type="primary" size="small">Motion trajectory></a-button>
+      <a-button id="changetype" type="primary" size="small" v-on:click="changetype">{{this.showtype}}></a-button>
+    </div>
     <div id="scatter-plot" class="scatter-plot">
     </div>
   </div>
@@ -41,14 +42,15 @@ export default {
   data(){
     return {
       // api provided by freeCodeCamp
+      showtype: "sentence",
       tsnedata: [], //所有的data
       sentence_selected:0, //初始时自动选择第一句
-      layer_selected: [1,2,3,4,5,6,7,8,9,10,11,12], //被选中的layer，用于过滤
+      layer_selected: [0,1,2,3,4,5,6,7,8,9,10,11], //被选中的layer，用于过滤
       token_selected: [], //被选中的token的index，用于过滤（注意是index（int)而不是token(str)，以防多个词反复出现时选取错误）
       data_to_show: [],
-      widthChart: 600, // width of #scatter-plot svg
-      heightChart: 300, // height of #scatter-plot svg
-      padding: 10, // padding of chart
+      widthChart: 350, // width of #scatter-plot svg
+      heightChart: 350, // height of #scatter-plot svg
+      padding: 50, // padding of chart
       // array of objects for the graph legend text
       legendData: [
         {
@@ -102,6 +104,13 @@ export default {
   },
   
   methods: {
+    changetype(){
+      if(this.showtype=="sentence"){
+        this.showtype="token";
+      }
+      else {this.showtype="sentence";}
+      this.getAll();
+    },
     update(){
       d3.select('#scattersvg').remove();   //删除整个SVG
       d3.select('#scattersvg')
@@ -109,10 +118,18 @@ export default {
         .remove()
     },
     getAll(){
-      const path = "http://10.192.9.11:5000/query_tsne"
+      console.log(this.showtype)
+      var path;
+      if(this.showtype=="sentence"){
+        path = "http://10.192.9.11:5000/query_sentence_tsne";
+      }
+      else {path = "http://10.192.9.11:5000/query_tsne";}
       axios.get(path)
         .then((res)=>{
-          this.tsnedata = res.data[this.sentence_selected];
+          if(this.showtype=="token") {this.tsnedata = res.data[this.sentence_selected];}
+          else{
+            this.tsnedata=res.data;
+          }
         })
         .then(() => this.update())
         .then(() => this.datainit())
@@ -120,13 +137,19 @@ export default {
         .catch((error) => console.log(error));
     },
     datainit(){
-      this.data_to_show = this.tsnedata.filter(datum =>{
+      if(this.showtype=="token"){
+        this.data_to_show = this.tsnedata.filter(datum =>{
           return (this.token_selected.indexOf(datum.index)>=0
-                 &&this.layer_selected.indexOf(datum.layer)>=0)
-        }
-      )
+                &&this.layer_selected.indexOf(datum.layer)>=0)
+        })
+      }else {
+        this.data_to_show = this.tsnedata.filter(datum =>{
+          return ((datum.index==this.sentence_selected)
+                &&this.layer_selected.indexOf(datum.layer)>=0)
+        })
+      }
     },
-    graphinit() {
+    graphinit(){
       // choose element to draw our svg
       const svg = d3.select('#scatter-plot')
         .append('svg')
@@ -169,7 +192,7 @@ export default {
       const legendG = svg.append('g')
         .attr('id', 'legend') // project requirement
         .attr('transform', `translate(${this.widthChart - this.padding - 200},
-          ${this.padding - 30} )`);
+          ${this.padding-40} )`);
 
       // function declaration for tooltip div element
       const divTool = d3.select('#scatter-plot')
@@ -198,24 +221,31 @@ export default {
         .attr('r', 6)
         // change circle color based on whether sentence1 or not; coordinate with legend
         .attr('class', function(d){
-          return d.label+" "+d.layer+" "+d.tokens
+          return d.label+" "+d.layer
         })
         // hover to show value with tooltip as defined in divTool above
         .on('mouseover', (event, d) => {
-          console.log(event);
-          
           divTool
             .attr('class', 'tooltip')
-            .html(`<p>
+            .style('opacity', '1')
+            .style('display', 'flex') // to align items centrally
+            // funky offsets here because of setting .scatter-plot to display: relative;
+            .style('top', `${event.pageY }px`)
+            .style('left', `${event.pageX + 10}px`);
+          if(this.showtype=="sentence"){
+            divTool.html(`<p>
+              <span class="name">index: ${d.index+1}</span>, layer: ${d.layer+1}<br/>
+              x: ${d.tsne[0]},<br/>
+              y: ${d.tsne[1]}<br/>
+            </p>`)
+          }
+          else{
+            divTool.html(`<p>
               <span class="name">${d.tokens}</span>, layer: ${d.layer+1}<br/>
               x: ${d.tsne[0]},<br/>
               y: ${d.tsne[1]}<br/>
             </p>`)
-            .style('opacity', '1')
-            .style('display', 'flex') // to align items centrally
-            // funky offsets here because of setting .scatter-plot to display: relative;
-             .style('top', `${event.clientY }px`)
-            .style('left', `${event.layerX + 10}px`);
+          }
         })
 
        
@@ -278,12 +308,25 @@ export default {
           .attr("stroke-dashoffset", 0);
           })
         }
-      var data = []
-      for(var i=0;i<this.token_selected.length;i++){
-        data = this.data_to_show.filter(datum => {return datum['index']==this.token_selected[i]});
-        var currentid = "Path"+i;
+      var data = [];
+      if(this.showtype=="token"){
+        for(var i=0;i<this.token_selected.length;i++){
+          data = this.data_to_show.filter(datum => {return datum['index']==this.token_selected[i]});
+          var currentid = "Path"+i;
+          svg.append('path').attr('id', currentid);
+          line_generator(data,i,this.color[i]);
+        }
+      }
+      else{
+        data = this.data_to_show.filter(datum =>{return datum['label']=="sentence1"});
+        currentid = "Path0";
         svg.append('path').attr('id', currentid);
-        line_generator(data,i,this.color[i]);
+        line_generator(data,0,this.color[0]);
+
+        data = this.data_to_show.filter(datum =>{return datum['label']=="sentence2"});
+        currentid = "Path1";
+        svg.append('path').attr('id', currentid);
+        line_generator(data,1,this.color[1]);
       }
     },
   },
@@ -296,20 +339,11 @@ export default {
  */
 @import "../assets/colors.scss";
 
-// .container-scatter-plot {
-//   background-color: $chart-background;
-//   border-radius: 15px;
-//   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
-//   height: 550px;
-//   margin: auto;
-//   margin-bottom: 2rem;
-//   width: 1050px;
-// }
 
 .chart-title {
   color: $text-gray;
   font-family: "Roboto", Helvetica, Arial, sans-serif;
-  margin-bottom: 0;
+  margin: 0px 68px;
   padding-top: 1rem;
 }
 
@@ -364,7 +398,7 @@ export default {
 
 .container-scatter-plot{
   height: 100%;
-  overflow: hidden;
+  // overflow: hidden;
 }
 #scatter-plot{
   height: 90%;
@@ -373,4 +407,5 @@ export default {
 #title{
   height: 10%;
 }
+
 </style>

@@ -170,7 +170,7 @@ export default {
 
         const tickData=Object.entries(tokens)
       
-      d3.select('#detail').append('g').style("font-size",15)
+      d3.select('#detail').append('g').style("font-size",10)
         .attr("id", "leftAxis")
         .call(d3.axisLeft(detailScale).tickSize(0))
         .selectAll(".tick")
