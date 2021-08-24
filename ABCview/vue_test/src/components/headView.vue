@@ -50,9 +50,9 @@ export default {
       // set the dimensions and margins of the graph
 
       
-      const margin = { top: 20, right: 30, bottom: 40, left: 15 },
-        width = 700 - margin.left - margin.right,
-        height = 450 - margin.top - margin.bottom;
+      const margin = { top: 10, right: 30, bottom: 15, left: 30 },
+        width = 730 - margin.left - margin.right,
+        height = 400 - margin.top - margin.bottom;
 
 
 
@@ -121,9 +121,13 @@ export default {
       }
 
       var mouseleave = function(){
-        d3.select(this)
+        if(d3.select(this).style('stroke')=='black'){
+          d3.select(this)
         .style('stroke','none')
         .style('opacity',0.8)
+
+        }
+        
       }
 
       // svg.append('g')
@@ -244,8 +248,12 @@ export default {
         .on('mouseover',mouseover)
         .on('mouseleave',mouseleave)
         .on('click',function(event,data){
+            d3.selectAll('.impo_rect').style('stroke','none')
+        .style('opacity',0.8)
+
+
           d3.select(this)
-        .style('stroke','black')
+        .style('stroke','blue')
         .style('opacity',1)
           bus.$emit('dispatchheadtoshow',[data.layer,data.head])
         })
@@ -318,6 +326,8 @@ export default {
 
 <style scoped>
 #attn-graph{
+  margin-top:10px;
+  margin-bottom: 10px;
   border-radius: 10px;
     background: white;
 }

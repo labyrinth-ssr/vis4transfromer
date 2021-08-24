@@ -125,7 +125,7 @@ export default {
       d3.select("#attnMapSvg").selectAll("*").remove();
       // set the dimensions and margins of the graph
 
-      const margin = { top: 10, right: 0, bottom: 30, left: 60 },
+      const margin = { top: 10, right: 0, bottom: 30, left: 50 },
         width =
           document.getElementById("attnMap").clientWidth -
           margin.left -
@@ -140,6 +140,7 @@ export default {
       .attr("width", width + margin.left + margin.right)
         .attr("height", height + margin.top + margin.bottom)
         .append("g")
+        .attr('id','svg-g')
         .attr("transform", `translate(${margin.left}, ${margin.top})`);
 
       var line_data = req_data;
@@ -312,10 +313,15 @@ export default {
 
 <style scoped>
 #attnMap {
-  
+  margin: 10px;
+  border-radius: 10px;
+  background: white;
   position: relative;
   top: 8%;
   height: 92%;
   width: 100%;
 }
+/* #attnMapSvg{
+  
+} */
 </style>

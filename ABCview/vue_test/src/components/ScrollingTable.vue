@@ -19,7 +19,7 @@ export default {
             column_name:['index', 'sentence1','sentence2','golden','pred','prob'],
             columns:['index','prob'],
             allData:[],
-            dimensions:{'width':1050, 'height':142},
+            dimensions:{'width':810, 'height':142},
             // delete tokens && change the sequence
         }
     },

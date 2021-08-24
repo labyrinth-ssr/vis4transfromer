@@ -23,6 +23,15 @@ export default {
         bus.$on('unhighlight',val=>{
             d3.select('#node-'+val).selectChild('rect').style('fill','white')
         })
+        bus.$on('dispatchtokentoshow',val=>{
+
+            if( d3.select('#node-'+val).attr('stroke')=='#ff6131'){
+
+           
+                        d3.select('#node-'+val).attr("stroke",undefined)
+                    }
+                    else d3.select('#node-'+val).attr("stroke","#ff6131")
+        })
     },
     data(){
         return{
@@ -213,10 +222,10 @@ export default {
             nodes.each(function(_,i){
                 d3.select(this)
                 .on("click",function(){
-                    if(d3.select(this).attr("stroke")=="#ff6131"){
-                        d3.select(this).attr("stroke",undefined)
-                    }
-                    else d3.select(this).attr("stroke","#ff6131")
+                    // if(d3.select(this).attr("stroke")=="#ff6131"){
+                    //     d3.select(this).attr("stroke",undefined)
+                    // }
+                    // else d3.select(this).attr("stroke","#ff6131")
                     bus.$emit("dispatchtokentoshow",i)//单击事件：传递需要在tsne视图中显示或删除的token的index
                 })
             })

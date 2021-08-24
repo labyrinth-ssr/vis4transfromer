@@ -161,6 +161,7 @@ d3.select('#AttrTreeSvg').remove()
         .enter()
         .append("g")
         .attr("class", "node")
+        // .attr('id','nodeBox')
         
 
       
@@ -263,12 +264,15 @@ d3.select('#AttrTreeSvg').remove()
 
 
 #attr-tree{
-  border-radius: 10px;
+  margin: 10px;
+
+ border-radius: 10px;
     background: white;
   height: 92%;
   text-align: center;
   width:100%;
   overflow: auto;
 }
+
 </style>
 

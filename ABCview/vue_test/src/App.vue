@@ -114,12 +114,18 @@ body {
 
 }
 #sleftCol {
-  width: 50%;
-  border: 1px solid darkgrey;
+  width: 48%;
+  /* border: 1px solid darkgrey; */
+  border-top:none
 
 }
 #srightCol {
-  width: 50%;
+  width: 52%;
+  /* attn-graph与attn-map间的边框 */
+  border: 1px solid darkgrey;
+  border-top:none;
+
+
 
 }
 /* .container{

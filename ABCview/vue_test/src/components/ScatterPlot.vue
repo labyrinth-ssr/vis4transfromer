@@ -487,5 +487,9 @@ export default {
 #title{
   height: 10%;
 }
+#scattersvg{
+   border-radius: 10px;
+    background: white;
+}
 
 </style>
