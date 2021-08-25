@@ -489,7 +489,7 @@ export default {
 }
 #scattersvg{
    border-radius: 10px;
-    background: white;
+    background-color: white;
 }
 
 </style>

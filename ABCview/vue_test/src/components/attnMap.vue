@@ -13,6 +13,7 @@ export default {
     bus.$on("dispatchsentencetoshow", (val) => {
       this.tokens = val[0];
       this.sentence_selected = val[1];
+      this.token_selected=[];
 
       this.getAll();
     });
@@ -139,6 +140,9 @@ export default {
       .attr('id','attnMapSvg')
       .attr("width", width + margin.left + margin.right)
         .attr("height", height + margin.top + margin.bottom)
+         .style('background-color','white')
+        .style("border-radius",'10px')
+        .style("margin",'10px')
         .append("g")
         .attr('id','svg-g')
         .attr("transform", `translate(${margin.left}, ${margin.top})`);
@@ -314,8 +318,7 @@ export default {
 <style scoped>
 #attnMap {
   margin: 10px;
-  border-radius: 10px;
-  background: white;
+ 
   position: relative;
   top: 8%;
   height: 92%;

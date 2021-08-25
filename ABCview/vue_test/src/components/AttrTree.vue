@@ -77,6 +77,8 @@ d3.select('#AttrTreeSvg').remove()
         .attr('id','AttrTreeSvg')
         .attr("width", width + margin.left + margin.right)
         .attr("height", height + margin.top + margin.bottom)
+        .style('background-color','white')
+        .style("border-radius",'10px')
         .append("g")
         .attr('id','g-sankey-scale')
         .attr("transform", " translate(" + (margin.left) + "," +( margin.top )+ ") ")
@@ -266,12 +268,19 @@ d3.select('#AttrTreeSvg').remove()
 #attr-tree{
   margin: 10px;
 
- border-radius: 10px;
-    background: white;
+
   height: 92%;
   text-align: center;
   width:100%;
   overflow: auto;
+}
+#AttrTreeSvg{
+ border-radius: 10px;
+
+
+  background-color: white;
+
+
 }
 
 </style>

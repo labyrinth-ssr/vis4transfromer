@@ -37,7 +37,7 @@ def query_tsne():
 def query_attn_head(sentence_id):
     with open('../output/att_attr_all/att_score_zero_base_exp'+str(sentence_id)+'.json') as load_f:
         py_data = ndjson.load(load_f)
-    with open('../output/head_importance_attr.json', 'r') as load_f2:
+    with open('../output/head_importance/head_importance_attr'+str(sentence_id)+'.json', 'r') as load_f2:
         py_data2 = json.load(load_f2)
     with open('./tokens.json', 'r') as load_f3:
         py_data3 = json.load(load_f3)
