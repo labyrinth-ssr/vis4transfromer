@@ -19,13 +19,13 @@ export default {
             column_name:['index', 'sentence1','sentence2','golden','pred','prob'],
             columns:['index','prob'],
             allData:[],
-            dimensions:{'width':1500, 'height':142},
+            dimensions:{'width':810, 'height':142},
             // delete tokens && change the sequence
         }
     },
     methods:{
         getAll(){
-        const path = "http://localhost:5000/query_all"
+        const path = "http://10.192.9.11:5000/query_all"
         axios.get(path)
             .then((res)=>{
             this.allData = res.data
@@ -106,6 +106,9 @@ export default {
 </script>
 
 <style>
+#scrolling-table{
+    display: flex;
+}
 #table {
 	width: 500px;
 	height: 160px;

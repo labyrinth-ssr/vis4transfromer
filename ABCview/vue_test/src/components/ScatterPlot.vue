@@ -1,9 +1,10 @@
 <template>
   <div class="container-scatter-plot">
-    <h2 id="title" class="chart-title">
-      <a-button id="startLine" type="primary">Motion trajectory></a-button>
-    </h2>
-    <div id="scatter-plot" class="scatter-plot">
+    <div id="title" class="chart-title">
+      <a-button id="startLine" type="primary" size="small">Motion trajectory></a-button>
+      <a-button id="changetype" type="primary" size="small" v-on:click="changetype">{{this.showtype}}></a-button>
+    </div>
+    <div  id="scatter-plot" class="scatter-plot">
     </div>
   </div>
 </template>
@@ -41,16 +42,17 @@ export default {
   data(){
     return {
       // api provided by freeCodeCamp
+      showtype: "sentence",
       tsnedata: [], //所有的data
       sentence_selected:0, //初始时自动选择第一句
-      layer_selected: [1,2,3,4,5,6,7,8,9,10,11,12], //被选中的layer，用于过滤
+      layer_selected: [0,1,2,3,4,5,6,7,8,9,10,11], //被选中的layer，用于过滤
       token_selected: [], //被选中的token的index，用于过滤（注意是index（int)而不是token(str)，以防多个词反复出现时选取错误）
       data_to_show: [],
-      widthChart: 600, // width of #scatter-plot svg
-      heightChart: 400, // height of #scatter-plot svg
-      padding: 60, // padding of chart
+      widthChart: 350, // width of #scatter-plot svg
+      heightChart: 350, // height of #scatter-plot svg
+      padding: 50, // padding of chart
       // array of objects for the graph legend text
-      legendData: [
+      legendData: [//仅仅是给句子tsne用的
         {
           Text: 'Sentence 1',
           Sentence1: 'Yes',
@@ -60,6 +62,7 @@ export default {
           Sentence1: '',
         },
       ],
+      tokenlegendData:[], //用于token tsne legend的Data
       color: [
         "#c25ec3", 
         "#73A373", 
@@ -102,17 +105,32 @@ export default {
   },
   
   methods: {
+    changetype(){
+      if(this.showtype=="sentence"){
+        this.showtype="token";
+      }
+      else {this.showtype="sentence";}
+      this.getAll();
+    },
     update(){
       d3.select('#scattersvg').remove();   //删除整个SVG
       d3.select('#scattersvg')
         .selectAll('*')
         .remove()
+      this.tokenlegendData=[]
     },
     getAll(){
-      const path = "http://localhost:5000/query_tsne"
+      var path;
+      if(this.showtype=="sentence"){
+        path = "http://10.192.9.11:5000/query_sentence_tsne";
+      }
+      else {path = "http://10.192.9.11:5000/query_tsne";}
       axios.get(path)
         .then((res)=>{
-          this.tsnedata = res.data[this.sentence_selected];
+          if(this.showtype=="token") {this.tsnedata = res.data[this.sentence_selected];}
+          else{
+            this.tsnedata=res.data;
+          }
         })
         .then(() => this.update())
         .then(() => this.datainit())
@@ -120,13 +138,32 @@ export default {
         .catch((error) => console.log(error));
     },
     datainit(){
-      this.data_to_show = this.tsnedata.filter(datum =>{
+      if(this.showtype=="token"){
+        this.data_to_show = this.tsnedata.filter(datum =>{
           return (this.token_selected.indexOf(datum.index)>=0
-                 &&this.layer_selected.indexOf(datum.layer)>=0)
+                &&this.layer_selected.indexOf(datum.layer)>=0)
+        })
+        for (var i = 0; i < this.token_selected.length; i++) {
+          this.tokenlegendData.push(this.data_to_show.find((item) => {
+            if(item.index === this.token_selected[i]){
+              return item
+            }
+          }))
+          this.tokenlegendData[i].color=this.color[i]
         }
-      )
+        this.data_to_show.forEach(element => {
+          var index = this.token_selected.indexOf(element.index)
+          element.color = this.color[index]
+        });
+        console.log(this.data_to_show)
+      }else {
+        this.data_to_show = this.tsnedata.filter(datum =>{
+          return ((datum.index==this.sentence_selected)
+                &&this.layer_selected.indexOf(datum.layer)>=0)
+        })
+      }
     },
-    graphinit() {
+    graphinit(){
       // choose element to draw our svg
       const svg = d3.select('#scatter-plot')
         .append('svg')
@@ -169,7 +206,7 @@ export default {
       const legendG = svg.append('g')
         .attr('id', 'legend') // project requirement
         .attr('transform', `translate(${this.widthChart - this.padding - 200},
-          ${this.padding - 30} )`);
+          ${this.padding-40} )`);
 
       // function declaration for tooltip div element
       const divTool = d3.select('#scatter-plot')
@@ -195,25 +232,34 @@ export default {
         .append('circle')
         .attr('cx', (d) => xScale(d['tsne'][0]))
         .attr('cy', (d) => yScale(d['tsne'][1])) 
-        .attr('r', 6)
+        .attr('r', 4)
         // change circle color based on whether sentence1 or not; coordinate with legend
         .attr('class', function(d){
-          return d.label+" "+d.layer+" "+d.tokens
+          return d.label+" "+d.layer
         })
         // hover to show value with tooltip as defined in divTool above
         .on('mouseover', (event, d) => {
           divTool
             .attr('class', 'tooltip')
-            .html(`<p>
+            .style('opacity', '1')
+            .style('display', 'flex') // to align items centrally
+            // funky offsets here because of setting .scatter-plot to display: relative;
+            .style('top', `${event.pageY }px`)
+            .style('left', `${event.pageX + 10}px`);
+          if(this.showtype=="sentence"){
+            divTool.html(`<p>
+              <span class="name">index: ${d.index+1}</span>, layer: ${d.layer+1}<br/>
+              x: ${d.tsne[0]},<br/>
+              y: ${d.tsne[1]}<br/>
+            </p>`)
+          }
+          else{
+            divTool.html(`<p>
               <span class="name">${d.tokens}</span>, layer: ${d.layer+1}<br/>
               x: ${d.tsne[0]},<br/>
               y: ${d.tsne[1]}<br/>
             </p>`)
-            .style('opacity', '1')
-            .style('display', 'flex') // to align items centrally
-            // funky offsets here because of setting .scatter-plot to display: relative;
-            .style('top', `${event.pageY - 25}px`)
-            .style('left', `${event.pageX + 10}px`);
+          }
         })
         .on('mouseout', () => {
           divTool
@@ -222,26 +268,70 @@ export default {
         });
 
       // one dot for each label in the legend
-      legendG.selectAll('rect')
-        .data(this.legendData)
-        .enter()
-        .append('rect')
-        .attr('x', 180) // color squares are to the left of text
-        .attr('y', (d, i) => i * 21) // multiple to set each dot lower than prev
-        .attr('height', 12)
-        .attr('width', 12)
-        .attr('class', (d) => (d.Sentence1 ? 'sentence1' : 'sentence2'));
+      if(this.showtype=="sentence"){
+        legendG.selectAll('rect')
+          .data(this.legendData)
+          .enter()
+          .append('rect')
+          .attr('x', 240) // color squares are to the left of text
+          .attr('y', (d, i) => i * 22) // multiple to set each dot lower than prev
+          .attr('height', 12)
+          .attr('width', 8)
+          .attr('class', (d) => (d.Sentence1 ? 'sentence1' : 'sentence2'));
+              // text labels for legend
+        legendG.selectAll('text')
+          .data(this.legendData)
+          .enter()
+          .append('text')
+          .attr('x', 160)
+          .attr('y', (d, i) => 10 + (i * 22))
+          .text((d) => d.Text)
+          .attr('class', 'legend-text');
+      }
+      else{
+          svg.selectAll('circle')
+          .attr('class', function(d){
+            return d.layer
+          })
+          .attr('fill',function(d){
+            return d.color
+          })
+          legendG.selectAll('rect')
+          .data(this.tokenlegendData)
+          .enter()
+          .append('rect')
+          .attr('x', 240) 
+          .attr('y', (d, i) => i * 22) // multiple to set each dot lower than prev
+          .attr('height', 12)
+          .attr('width', 8)
+          // .attr('class', (d) => (d.Sentence1 ? 'sentence1' : 'sentence2'));
+          .attr('fill',function(d){
+            return d.color
+          })
+          // 获取最长token的length 以保证sentence能够对齐
+          var tokenmaxlen=d3.max(this.tokenlegendData,function(d){
+            return d.tokens.length
+            })
+          console.log(tokenmaxlen)
+          legendG.selectAll('text')
+          .data(this.tokenlegendData)
+          .enter()
+          .append('text')
+          .attr('x', 80)
+          .attr('y', (d, i) => 10 + (i * 22))
+          .text(function(d){
+            var space = " "
+            for(var i=0;i<(tokenmaxlen-d.tokens.length);i++){
+              space +='\u00A0'
+            }
+            var text = d.tokens+space+d.label
+            return (text)
+          })
+          .attr('class', 'legend-text')
+          .attr('style', 'white-space:pre');
+      }
 
-      // text labels for legend
-      legendG.selectAll('text')
-        .data(this.legendData)
-        .enter()
-        .append('text')
-        .attr('x', 80)
-        .attr('y', (d, i) => 10 + (i * 22))
-        .text((d) => d.Text)
-        .attr('class', 'legend-text');
-      
+
       const line_generator = function(data,i,color){
           const line = d3.line()
           .x(d => {return xScale(d['tsne'][0])})
@@ -250,13 +340,36 @@ export default {
           .curve(d3.curveCardinal.tension(0.5))
           
           var currentid = "Path"+i;
+          // var Gradientid = "svgGradient"+i;
+          // var defs = svg.append("defs");
+
+          // var gradient = defs.append("linearGradient")
+          // .attr("id", Gradientid)
+          // .attr("x1", "0%")
+          // .attr("x2", "100%")
+          // .attr("y1", "0%")
+          // .attr("y2", "100%");
+
+          // gradient.append("stop")
+          // .attr('class', 'start')
+          // .attr("offset", "0%")
+          // .attr("stop-color",color)
+          // .attr("stop-opacity", 0);
+
+          // gradient.append("stop")
+          // .attr('class', 'end')
+          // .attr("offset", "100%")
+          // .attr("stop-color",color)
+          // .attr("stop-opacity", 1);
 
           d3.select("#"+currentid).datum(data)
           .attr('class', 'datacurve')
           .attr("fill", "none")
-          .attr("stroke", color)
           .attr("stroke-width", 2.5)
-          .attr("d", line);
+          .attr("d", line)
+          .attr("stroke",color)
+          // .attr("stroke", `url(#${Gradientid})`)
+
 
           
           d3.select("#startLine").on("click", function(){
@@ -274,12 +387,25 @@ export default {
           .attr("stroke-dashoffset", 0);
           })
         }
-      var data = []
-      for(var i=0;i<this.token_selected.length;i++){
-        data = this.data_to_show.filter(datum => {return datum['index']==this.token_selected[i]});
-        var currentid = "Path"+i;
+      var data = [];
+      if(this.showtype=="token"){
+        for(var i=0;i<this.token_selected.length;i++){
+          data = this.data_to_show.filter(datum => {return datum['index']==this.token_selected[i]});
+          var currentid = "Path"+i;
+          svg.append('path').attr('id', currentid);
+          line_generator(data,i,this.color[i]);
+        }
+      }
+      else{
+        data = this.data_to_show.filter(datum =>{return datum['label']=="sentence1"});
+        currentid = "Path0";
         svg.append('path').attr('id', currentid);
-        line_generator(data,i,this.color[i]);
+        line_generator(data,0,this.color[0]);
+
+        data = this.data_to_show.filter(datum =>{return datum['label']=="sentence2"});
+        currentid = "Path1";
+        svg.append('path').attr('id', currentid);
+        line_generator(data,1,this.color[1]);
       }
     },
   },
@@ -292,20 +418,11 @@ export default {
  */
 @import "../assets/colors.scss";
 
-// .container-scatter-plot {
-//   background-color: $chart-background;
-//   border-radius: 15px;
-//   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
-//   height: 550px;
-//   margin: auto;
-//   margin-bottom: 2rem;
-//   width: 1050px;
-// }
 
 .chart-title {
   color: $text-gray;
   font-family: "Roboto", Helvetica, Arial, sans-serif;
-  margin-bottom: 0;
+  margin: 0px 68px;
   padding-top: 1rem;
 }
 
@@ -322,17 +439,18 @@ export default {
 
 // dynamically assigned class for dots to show tokens in sentence1
 .sentence1 {
-  fill: $guilty-red;
+  fill:#c25ec3;
   opacity: 0.9;
 }
 
 // dynamically assigned class for dots to show tokens in sentence2
 .sentence2 {
-  fill: $clean-green;
+  fill:#73A373;
   opacity: 0.9;
 }
 
 .legend-text {
+  font-family: 'Courier New', Courier, monospace;
   font-size: 0.9rem;
 }
 
@@ -357,4 +475,21 @@ export default {
     font-style: italic;
   }
 }
+
+.container-scatter-plot{
+  height: 100%;
+  // overflow: hidden;
+}
+#scatter-plot{
+  height: 90%;
+  // overflow: hidden;
+}
+#title{
+  height: 10%;
+}
+#scattersvg{
+   border-radius: 10px;
+    background-color: white;
+}
+
 </style>

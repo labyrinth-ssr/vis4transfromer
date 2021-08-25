@@ -16,6 +16,22 @@ export default {
                 .remove();                    //清空SVG中的内容
             this.drawParagraph(this.tokens,this.SVGPadding,this.textTokenPadding);
         })
+        bus.$on('highlightToken',val=>{
+            d3.select('#node-'+val).selectChild('rect').style('fill','Lavender')
+
+        })
+        bus.$on('unhighlight',val=>{
+            d3.select('#node-'+val).selectChild('rect').style('fill','white')
+        })
+        bus.$on('dispatchtokentoshow',val=>{
+
+            if( d3.select('#node-'+val).attr('stroke')=='#ff6131'){
+
+           
+                        d3.select('#node-'+val).attr("stroke",undefined)
+                    }
+                    else d3.select('#node-'+val).attr("stroke","#ff6131")
+        })
     },
     data(){
         return{
@@ -27,8 +43,8 @@ export default {
                 top:2, bottom:2,
                 left:5, right:5,
             },
-            width:1500,
-            height:50,
+            width:800,
+            height:400,
             tokens: [
                 "[CLS]",
                 "The",
@@ -119,7 +135,7 @@ export default {
             let textTokenSize = this.getTokenWidth(tokens, svg);
             let textTokenWidths = textTokenSize.textTokenWidths;
             let textTokenHeight = textTokenSize.textTokenHeight;
-            let containerWidthFactor = 4 / 5;
+            let containerWidthFactor = 1;
             let containerWidth = SVGWidth * containerWidthFactor;
 
             const tokenGap = 5;
@@ -128,7 +144,7 @@ export default {
             // Add tokens
             let tokenGroup = svg.append('g')
                 // .attr('class', 'token-group-saliency')
-                .attr('class', 'token-group')
+                .attr('id', 'token-group')
                 .attr('transform', `translate(${SVGPadding.left + SVGWidth * (1 - containerWidthFactor) / 2},
                 ${SVGPadding.top})`);
             let count = -1;
@@ -206,13 +222,15 @@ export default {
             nodes.each(function(_,i){
                 d3.select(this)
                 .on("click",function(){
-                    if(d3.select(this).attr("stroke")=="#ff6131"){
-                        d3.select(this).attr("stroke",undefined)
-                    }
-                    else d3.select(this).attr("stroke","#ff6131")
+                    // if(d3.select(this).attr("stroke")=="#ff6131"){
+                    //     d3.select(this).attr("stroke",undefined)
+                    // }
+                    // else d3.select(this).attr("stroke","#ff6131")
                     bus.$emit("dispatchtokentoshow",i)//单击事件：传递需要在tsne视图中显示或删除的token的index
                 })
             })
+
+            d3.select('#tokensvg').attr('height',document.getElementById("token-group").getBBox().height)
             // Create legend for the saliency map view
             // let legendGroup = svg.append('g')
             //     .attr('class', 'legend-group')
@@ -274,6 +292,11 @@ export default {
 </script>
 
 <style>
+#tokentable{
+  overflow: auto;
+
+}
+
 .node-group g:hover {
     fill:grey;
 }
